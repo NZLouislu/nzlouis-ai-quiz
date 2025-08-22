@@ -3,11 +3,23 @@
 import * as React from "react";
 import { useState } from "react";
 
+type Difficulty = "Easy" | "Medium" | "Hard";
+
+type TriviaQuestion = {
+  category: string;
+  type: "multiple";
+  difficulty: "easy" | "medium" | "hard";
+  question: string;
+  correct_answer: string;
+  incorrect_answers: string[];
+  allAnswers: string[];
+};
+
 export default function TriviaApiQuizPage() {
   const [topic, setTopic] = useState("");
   const [numQuestions, setNumQuestions] = useState("3");
-  const [difficulty, setDifficulty] = useState("Easy");
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [difficulty, setDifficulty] = useState<Difficulty>("Easy");
+  const [questions, setQuestions] = useState<TriviaQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -21,14 +33,20 @@ export default function TriviaApiQuizPage() {
     setShowResults(false);
 
     try {
-      const difficultyMap = { Easy: "easy", Medium: "medium", Hard: "hard" };
+      const difficultyMap: Record<Difficulty, string> = {
+        Easy: "easy",
+        Medium: "medium",
+        Hard: "hard",
+      };
+
       const res = await fetch(
         `https://opentdb.com/api.php?amount=${numQuestions}&difficulty=${difficultyMap[difficulty]}&type=multiple`
       );
-      const data = await res.json();
+      const data: { results: Omit<TriviaQuestion, "allAnswers">[] } =
+        await res.json();
 
       if (data.results) {
-        const formatted = data.results.map((q: any) => {
+        const formatted: TriviaQuestion[] = data.results.map((q) => {
           const allAnswers = [...q.incorrect_answers];
           const randomIndex = Math.floor(
             Math.random() * (allAnswers.length + 1)
@@ -36,6 +54,7 @@ export default function TriviaApiQuizPage() {
           allAnswers.splice(randomIndex, 0, q.correct_answer);
           return { ...q, allAnswers };
         });
+
         setQuestions(formatted);
         setCurrentIndex(0);
         setScore(0);
@@ -157,7 +176,9 @@ export default function TriviaApiQuizPage() {
                     name="difficulty"
                     value={level}
                     checked={difficulty === level}
-                    onChange={(e) => setDifficulty(e.target.value)}
+                    onChange={(e) =>
+                      setDifficulty(e.target.value as Difficulty)
+                    }
                     className="h-4 w-4 text-blue-600 accent-blue-600"
                   />
                   <span className="text-sm">{level}</span>
@@ -191,27 +212,25 @@ export default function TriviaApiQuizPage() {
           />
 
           <div className="flex flex-col gap-3">
-            {questions[currentIndex].allAnswers.map(
-              (answer: string, i: number) => (
-                <label
-                  key={i}
-                  className="flex items-start gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer"
-                >
-                  <input
-                    type="radio"
-                    name="answer"
-                    value={answer}
-                    checked={selectedAnswer === answer}
-                    onChange={(e) => setSelectedAnswer(e.target.value)}
-                    className="h-4 w-4 text-blue-600 accent-blue-600 mt-0.5"
-                  />
-                  <span
-                    className="flex-1"
-                    dangerouslySetInnerHTML={{ __html: answer }}
-                  />
-                </label>
-              )
-            )}
+            {questions[currentIndex].allAnswers.map((answer, i) => (
+              <label
+                key={i}
+                className="flex items-start gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name="answer"
+                  value={answer}
+                  checked={selectedAnswer === answer}
+                  onChange={(e) => setSelectedAnswer(e.target.value)}
+                  className="h-4 w-4 text-blue-600 accent-blue-600 mt-0.5"
+                />
+                <span
+                  className="flex-1"
+                  dangerouslySetInnerHTML={{ __html: answer }}
+                />
+              </label>
+            ))}
           </div>
 
           <div className="flex gap-3">
