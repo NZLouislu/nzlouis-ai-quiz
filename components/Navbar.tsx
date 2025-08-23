@@ -8,9 +8,9 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   const items = [
-    { label: "Custom AI Quiz", href: "/" },
-    { label: "Google AI Quiz", href: "/google-ai-quiz" },
+    { label: "Gemini AI Quiz", href: "/" },
     { label: "Trivia API Quiz", href: "/trivia-api-quiz" },
+    { label: "Custom AI Quiz", href: "/custom-ai-quiz" },
     { label: "Gradio Quiz UI", href: "/gradio-quiz-ui" },
   ];
 
