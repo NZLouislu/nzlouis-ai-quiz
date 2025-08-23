@@ -28,19 +28,16 @@ export async function POST(req) {
       Ensure the value of "correctAnswer" exactly matches one of the values in "options".
     `;
 
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
-    const apiUrl =
-      process.env.NEXT_PUBLIC_GEMINI_API_URL;
+    const apiKey = process.env.GOOGLE_API_KEY;
+    const apiUrl = process.env.GEMINI_API_URL;
 
-    if (!apiKey) {
-      return NextResponse.json({ error: "API key not set" }, { status: 500 });
+    if (!apiKey || !apiUrl) {
+      return NextResponse.json({ error: "API key or URL not set" }, { status: 500 });
     }
 
     const payload = {
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-      },
+      generationConfig: { responseMimeType: "application/json" },
     };
 
     const response = await fetch(`${apiUrl}?key=${apiKey}`, {
@@ -50,13 +47,19 @@ export async function POST(req) {
     });
 
     if (!response.ok) {
-      return NextResponse.json({ error: `API error: ${response.status}` }, { status: 500 });
+      return NextResponse.json(
+        { error: `API error: ${response.status}` },
+        { status: 500 }
+      );
     }
 
     const data = await response.json();
 
     if (!data.candidates || data.candidates.length === 0) {
-      return NextResponse.json({ error: "No quiz data received from API" }, { status: 500 });
+      return NextResponse.json(
+        { error: "No quiz data received from API" },
+        { status: 500 }
+      );
     }
 
     let quizJson = data.candidates[0].content.parts[0].text;
@@ -65,7 +68,7 @@ export async function POST(req) {
     let parsedData;
     try {
       parsedData = JSON.parse(quizJson);
-    } catch (err) {
+    } catch {
       const sanitizedJson = quizJson
         .replace(/\\(?!["\\/bfnrtu])/g, "")
         .replace(/,\s*}/g, "}")
@@ -75,6 +78,7 @@ export async function POST(req) {
 
     return NextResponse.json(parsedData);
   } catch (err) {
+    console.error("Quiz API error:", err);
     return NextResponse.json({ error: "Failed to generate quiz" }, { status: 500 });
   }
 }
