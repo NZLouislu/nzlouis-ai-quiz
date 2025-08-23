@@ -90,7 +90,7 @@ export async function POST(req: Request) {
     let parsedData;
     try {
       parsedData = JSON.parse(quizJson);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("JSON parse error:", err);
       const sanitizedJson = quizJson
         .replace(/\\(?!["\\/bfnrtu])/g, "")
@@ -103,11 +103,15 @@ export async function POST(req: Request) {
     console.log("Final parsed quiz object:", JSON.stringify(parsedData, null, 2));
 
     return NextResponse.json(parsedData);
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Quiz API fatal error:", err);
     return NextResponse.json(
-      { error: "Failed to generate quiz", details: err.message },
+      { 
+        error: "Failed to generate quiz", 
+        details: err instanceof Error ? err.message : String(err) 
+      },
       { status: 500 }
     );
   }
+  
 }
