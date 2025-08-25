@@ -350,6 +350,7 @@ export default function TriviaQuizPage() {
               quizLanguage={"English"}
               aiScrollRef={aiScrollRef}
               questionContainerRef={questionContainerRef}
+              onClose={() => setAiOpen(false)}
             />
           )}
         </div>

@@ -19,6 +19,7 @@ type Props = {
   quizLanguage: "中文" | "English";
   aiScrollRef: React.RefObject<HTMLDivElement | null>;
   questionContainerRef: React.RefObject<HTMLDivElement | null>;
+  onClose: () => void;
 };
 
 export default function AIAssistant({
@@ -30,34 +31,57 @@ export default function AIAssistant({
   quizLanguage,
   aiScrollRef,
   questionContainerRef,
+  onClose,
 }: Props) {
   return (
     <div
-      className="bg-white rounded-lg shadow-md p-4 flex flex-col text-black"
+      className="relative bg-white rounded-lg shadow-md p-4 flex flex-col text-black"
       style={{
         maxHeight: questionContainerRef.current?.offsetHeight || "80vh",
       }}
     >
-      <h3 className="font-semibold text-lg mb-2">
+      <button
+        onClick={onClose}
+        aria-label="Close"
+        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center font-bold"
+      >
+        ×
+      </button>
+      <h3 className="font-semibold text-lg mb-2 pr-8">
         {quizLanguage === "中文" ? "AI 助手" : "AI Assistant"}
       </h3>
       <div
         ref={aiScrollRef}
-        className="flex-1 overflow-y-auto p-2 bg-gray-50 rounded-md mb-2 text-black"
+        className="flex-1 overflow-y-auto p-2 bg-gray-50 rounded-md mb-2 text-black space-y-3"
       >
         {aiMessages.map((msg, idx) => (
-          <p key={idx} className="mb-2">
-            <span
-              className={msg.role === "user" ? "font-medium" : "font-semibold"}
+          <div
+            key={idx}
+            className={`flex items-start ${
+              msg.role === "assistant" ? "justify-start" : "justify-end"
+            }`}
+          >
+            {msg.role === "assistant" && (
+              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-2">
+                AI
+              </div>
+            )}
+            <div
+              className={`px-3 py-2 rounded-lg ${
+                msg.role === "assistant"
+                  ? "bg-blue-50 text-left"
+                  : "bg-green-50 text-right"
+              }`}
+              style={{ maxWidth: "88%" }}
             >
-              {msg.role === "user"
-                ? quizLanguage === "中文"
-                  ? "你: "
-                  : "You: "
-                : "AI: "}
-            </span>
-            {msg.content}
-          </p>
+              {msg.content}
+            </div>
+            {msg.role === "user" && (
+              <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold ml-2">
+                {quizLanguage === "中文" ? "你" : "You"}
+              </div>
+            )}
+          </div>
         ))}
         {aiLoading && (
           <p>

@@ -371,6 +371,7 @@ export default function GeminiAIQuizPage() {
               quizLanguage={quizLanguage}
               aiScrollRef={aiScrollRef}
               questionContainerRef={questionContainerRef}
+              onClose={() => setAiOpen(false)}
             />
           )}
 
