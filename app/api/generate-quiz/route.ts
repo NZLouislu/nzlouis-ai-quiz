@@ -1,5 +1,12 @@
 import { NextResponse } from "next/server";
 
+type RawQuizItem = {
+  question?: string;
+  options?: unknown;
+  correctAnswer?: string;
+  hint?: string;
+};
+
 export async function POST(req: Request) {
   try {
     const { quizTopic, numberOfQuestions, difficulty, language } = await req.json();
@@ -78,7 +85,7 @@ Rules:
       return NextResponse.json({ error: "Malformed quiz JSON" }, { status: 500 });
     }
 
-    parsed.quiz = parsed.quiz.map((q: any) => ({
+    parsed.quiz = parsed.quiz.map((q: RawQuizItem) => ({
       question: String(q.question || ""),
       options: Array.isArray(q.options) ? q.options.map(String) : [],
       correctAnswer: String(q.correctAnswer || ""),
