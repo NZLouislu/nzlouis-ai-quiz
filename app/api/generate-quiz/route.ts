@@ -2,57 +2,43 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    console.log("=== [API] Generate Quiz called ===");
-
-    const { quizTopic, numberOfQuestions, difficulty } = await req.json();
-    console.log("Request body:", { quizTopic, numberOfQuestions, difficulty });
+    const { quizTopic, numberOfQuestions, difficulty, language } = await req.json();
 
     const prompt = `
-      Generate a quiz based on the following requirements:
-      Topic: ${quizTopic}
-      Number of questions: ${numberOfQuestions}
-      Difficulty: ${difficulty}
-
-      Return the result in JSON format with the following structure:
-      {
-        "quiz": [
-          {
-            "question": "Question content",
-            "options": [
-              "Option A",
-              "Option B",
-              "Option C",
-              "Option D"
-            ],
-            "correctAnswer": "Correct answer"
-          }
-        ]
-      }
-      Ensure the value of "correctAnswer" exactly matches one of the values in "options".
-    `;
+Return only valid JSON. Create a ${language} quiz as a JSON object with this exact shape:
+{
+  "quiz": [
+    {
+      "question": "string",
+      "options": ["A","B","C","D"],
+      "correctAnswer": "one of options",
+      "hint": "concise, non-spoiler nudge that helps reasoning without revealing the answer"
+    }
+  ]
+}
+Topic: ${quizTopic}
+Questions: ${numberOfQuestions}
+Difficulty: ${difficulty}
+Rules:
+- Each "options" must be plausible and mutually exclusive.
+- "correctAnswer" must exactly match one item in "options".
+- "hint" should guide thinking paths or key concept, avoid giving the exact answer.
+- Avoid code fences or explanations; output JSON only.
+`;
 
     const apiKey = process.env.GOOGLE_API_KEY;
     const apiUrl = process.env.GEMINI_API_URL;
 
-    console.log("API Key present:", !!apiKey);
-    console.log("API URL:", apiUrl);
-
     if (!apiKey || !apiUrl) {
-      console.error("Missing API key or API URL");
-      return NextResponse.json(
-        { error: "API key or URL not set" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "API key or URL not set" }, { status: 500 });
     }
 
     const payload = {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: { responseMimeType: "application/json" },
     };
-    console.log("Payload to Gemini:", JSON.stringify(payload, null, 2));
 
     const url = `${apiUrl}?key=${apiKey}`;
-    console.log("Fetching Gemini API:", url);
 
     const response = await fetch(url, {
       method: "POST",
@@ -60,11 +46,8 @@ export async function POST(req: Request) {
       body: JSON.stringify(payload),
     });
 
-    console.log("Gemini response status:", response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Gemini API error response:", errorText);
       return NextResponse.json(
         { error: `API error: ${response.status}`, details: errorText },
         { status: 500 }
@@ -72,46 +55,41 @@ export async function POST(req: Request) {
     }
 
     const data = await response.json();
-    console.log("Gemini API raw data:", JSON.stringify(data, null, 2));
 
     if (!data.candidates || data.candidates.length === 0) {
-      console.error("No candidates in response");
-      return NextResponse.json(
-        { error: "No quiz data received from API" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "No quiz data received from API" }, { status: 500 });
     }
 
-    let quizJson = data.candidates[0].content.parts[0].text;
-    console.log("Raw quiz JSON string:", quizJson);
-
+    let quizJson = data.candidates[0]?.content?.parts?.[0]?.text || "";
     quizJson = quizJson.replace(/```json\n?|```/g, "").trim();
 
-    let parsedData;
+    let parsed;
     try {
-      parsedData = JSON.parse(quizJson);
-    } catch (err: unknown) {
-      console.error("JSON parse error:", err);
-      const sanitizedJson = quizJson
+      parsed = JSON.parse(quizJson);
+    } catch {
+      const sanitized = quizJson
         .replace(/\\(?!["\\/bfnrtu])/g, "")
         .replace(/,\s*}/g, "}")
         .replace(/,\s*]/g, "]");
-      console.log("Sanitized JSON string:", sanitizedJson);
-      parsedData = JSON.parse(sanitizedJson);
+      parsed = JSON.parse(sanitized);
     }
 
-    console.log("Final parsed quiz object:", JSON.stringify(parsedData, null, 2));
+    if (!parsed.quiz || !Array.isArray(parsed.quiz)) {
+      return NextResponse.json({ error: "Malformed quiz JSON" }, { status: 500 });
+    }
 
-    return NextResponse.json(parsedData);
+    parsed.quiz = parsed.quiz.map((q: any) => ({
+      question: String(q.question || ""),
+      options: Array.isArray(q.options) ? q.options.map(String) : [],
+      correctAnswer: String(q.correctAnswer || ""),
+      hint: q.hint ? String(q.hint) : "",
+    }));
+
+    return NextResponse.json(parsed);
   } catch (err: unknown) {
-    console.error("Quiz API fatal error:", err);
     return NextResponse.json(
-      { 
-        error: "Failed to generate quiz", 
-        details: err instanceof Error ? err.message : String(err) 
-      },
+      { error: "Failed to generate quiz", details: err instanceof Error ? err.message : String(err) },
       { status: 500 }
     );
   }
-  
 }
