@@ -13,35 +13,67 @@ export async function POST(req: Request) {
     } = await req.json();
 
     const base = `
-You are a helpful tutor for multiple-choice quizzes. Explain reasoning paths, key concepts, and how to eliminate distractors. Prefer step-by-step thinking aids and analogies. Do not reveal the final answer unless the user explicitly asks for it.
-Question: ${question}
-Options: ${Array.isArray(options) ? options.join(" | ") : ""}
-User selected: ${selectedAnswer ?? "N/A"}
-`;
+    You are a tutor for multiple-choice quizzes. Provide exactly three concise bullet points. Each bullet should be very short (no more than 12 words). Keep overall length ~50% of a normal hint. Do NOT reveal the correct answer unless the user explicitly requests it.
+    Question: ${question}
+    Options: ${Array.isArray(options) ? options.join(" | ") : ""}
+    User selected: ${selectedAnswer ?? "N/A"}
+    `;
 
     let userText = "";
+    const history = messages
+      .map((m: ChatMessage) => `${m.role.toUpperCase()}: ${m.content}`)
+      .join("\n");
+    const userMessages = messages
+      .filter((m: ChatMessage) => m.role === "user")
+      .map((m: ChatMessage) => m.content);
+    const orPattern = /([A-Za-z0-9'’&\-\s]+?)\s+or\s+([A-Za-z0-9'’&\-\s]+)\??/i;
+    let contrastPair = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      const match = userMessages[i].match(orPattern);
+      if (match) {
+        const a = match[1].trim();
+        const b = match[2].trim();
+        const opts = Array.isArray(options)
+          ? options.map((o) => o.toLowerCase())
+          : [];
+        if (opts.includes(a.toLowerCase()) && opts.includes(b.toLowerCase())) {
+          contrastPair = { a, b };
+          break;
+        }
+      }
+    }
+
     if (mode === "initial") {
-      userText = `Provide a concise analysis to guide the user toward the solution without stating the correct option.`;
+      userText = `Mode: hint
+    Provide three short, non-spoiler hints that guide toward identifying the correct option. Keep each bullet <=12 words. Do not state or imply the answer.`;
+    } else if (mode === "reveal") {
+      userText = `Mode: answer
+    Give the correct option on the first line, then one-sentence justification, then a short confidence (0-1). Keep each line very short.`;
+    } else if (contrastPair) {
+      userText = `Mode: contrast
+    Compare "${contrastPair.a}" vs "${contrastPair.b}" in three very short bullets:
+    1) Key fact that supports ${contrastPair.a}
+    2) Key fact that supports ${contrastPair.b}
+    3) One-line neutral leaning or invite to reveal answer (do not state the answer unless asked).`;
     } else {
-      const history = (messages as ChatMessage[])
-        .map((m) => `${m.role.toUpperCase()}: ${m.content}`)
-        .join("\n");
-      userText = `Follow-up Q&A. Conversation:\n${history}\nRespond to the last USER message. Keep guidance helpful and non-spoiler unless the user explicitly requests the answer.`;
+      userText = `Mode: followup
+    Follow the user's history: ${history}
+    Respond with three concise, non-spoiler hints, each <=12 words, aimed to resolve uncertainty.`;
     }
 
     const apiKey = process.env.GOOGLE_API_KEY;
     const apiUrl = process.env.GEMINI_API_URL;
-    if (!apiKey || !apiUrl)
+    if (!apiKey || !apiUrl) {
       return NextResponse.json(
         { error: "API key or URL not set" },
         { status: 500 }
       );
+    }
 
     const payload = {
       contents: [{ parts: [{ text: base + "\n" + userText }] }],
     };
-    const url = `${apiUrl}?key=${apiKey}`;
-    const response = await fetch(url, {
+    const response = await fetch(`${apiUrl}?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
