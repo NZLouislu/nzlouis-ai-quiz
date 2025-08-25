@@ -92,7 +92,6 @@ export default function CustomAIQuizPage() {
           </form>
         </div>
       </main>
-      <Footer />
     </>
   );
 }
