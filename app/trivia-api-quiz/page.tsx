@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import AIAssistant from "../../components/AIAssistant";
 
 type QuizItem = {
   question: string;
   options: string[];
   correctAnswer: string;
+};
+
+type AIMessage = {
+  role: "user" | "assistant";
+  content: string;
 };
 
 const categories = [
@@ -42,19 +48,34 @@ export default function TriviaQuizPage() {
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
 
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiMessages, setAiMessages] = useState<AIMessage[]>([]);
+  const [aiInput, setAiInput] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const aiScrollRef = useRef<HTMLDivElement | null>(null);
+  const questionContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (aiScrollRef.current)
+      aiScrollRef.current.scrollTop = aiScrollRef.current.scrollHeight;
+  }, [aiMessages]);
+
   const handleStart = async () => {
     setLoading(true);
     setQuiz(null);
     setShowResults(false);
     setScore(0);
     setCurrentIndex(0);
-
+    setSelectedAnswer(null);
+    setIsCorrect(null);
+    setAiOpen(false);
+    setAiMessages([]);
     const res = await fetch("/api/trivia-quiz", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ category, numQuestions, difficulty }),
     });
-
     const data = await res.json();
     setQuiz(data.quiz);
     setLoading(false);
@@ -73,183 +94,266 @@ export default function TriviaQuizPage() {
       setCurrentIndex((i) => i + 1);
       setSelectedAnswer(null);
       setIsCorrect(null);
+      setAiOpen(false);
+      setAiMessages([]);
+      setAiInput("");
     } else {
       setShowResults(true);
+      setAiOpen(false);
     }
   };
 
-  if (!quiz && !showResults) {
-    return (
-      <main className="min-h-screen flex items-start justify-center bg-gray-50 mt-12">
-        <div className="max-w-2xl w-full bg-white p-8 rounded-lg shadow-md">
+  const handleAIMessage = async (
+    message: string,
+    mode: "initial" | "followup"
+  ) => {
+    if (!quiz) return;
+    const currentQ = quiz[currentIndex];
+    setAiLoading(true);
+    if (mode === "followup")
+      setAiMessages((prev) => [...prev, { role: "user", content: message }]);
+    try {
+      const res = await fetch("/api/ai-assistant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode,
+          question: currentQ.question,
+          options: currentQ.options,
+          selectedAnswer,
+          messages: aiMessages,
+          language: "English",
+        }),
+      });
+      const data = await res.json();
+      setAiMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.message || "No response" },
+      ]);
+    } catch {
+      setAiMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "AI failed to get response" },
+      ]);
+    } finally {
+      setAiLoading(false);
+      setAiInput("");
+    }
+  };
+
+  const handleAskAI = () => {
+    setAiMessages([]);
+    setAiOpen(true);
+    handleAIMessage("", "initial");
+  };
+
+  return (
+    <main className="min-h-screen pt-16 pb-8 px-4 bg-gray-50">
+      <div className="max-w-5xl mx-auto mt-8 flex flex-col lg:flex-row gap-6">
+        <div
+          className="flex-1 bg-white p-8 rounded-lg shadow-md"
+          ref={questionContainerRef}
+        >
           <h1 className="text-2xl font-bold text-center mb-6">
             🎯 Trivia Quiz
           </h1>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Category</label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full border rounded p-2"
-              >
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Questions
-              </label>
-              <div className="flex gap-4">
-                {["3", "5", "10"].map((num) => (
-                  <label key={num} className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      value={num}
-                      checked={numQuestions === num}
-                      onChange={(e) => setNumQuestions(e.target.value)}
-                    />
-                    {num}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Difficulty
-              </label>
-              <div className="flex gap-4">
-                {["easy", "medium", "hard"].map((level) => (
-                  <label key={level} className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      value={level}
-                      checked={difficulty === level}
-                      onChange={(e) => setDifficulty(e.target.value)}
-                    />
-                    <span className="capitalize">{level}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <button
-              onClick={handleStart}
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
-            >
-              {loading ? "Loading..." : "Start Quiz"}
-            </button>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  if (quiz && !showResults) {
-    const currentQ = quiz[currentIndex];
-    return (
-      <main className="min-h-screen flex items-start justify-center bg-gray-50 mt-12">
-        <div className="max-w-2xl w-full bg-white p-8 rounded-lg shadow-md">
-          <div className="flex justify-between text-sm text-gray-600 mb-4">
-            <span>
-              Question {currentIndex + 1} / {quiz.length}
-            </span>
-            <span>Score: {score}</span>
-          </div>
-
-          <h2
-            className="text-lg font-semibold mb-6"
-            dangerouslySetInnerHTML={{ __html: currentQ.question }}
-          />
-
-          <ul className="space-y-3">
-            {currentQ.options.map((opt, i) => {
-              const isOptionCorrect = opt === currentQ.correctAnswer;
-              const isSelected = selectedAnswer === opt;
-              return (
-                <li
-                  key={i}
-                  onClick={() => handleAnswer(opt)}
-                  className={`p-4 rounded-lg cursor-pointer transition flex justify-between items-center
-                    ${
-                      isSelected
-                        ? isCorrect
-                          ? "bg-green-200"
-                          : "bg-red-200"
-                        : "bg-gray-100 hover:bg-gray-200"
-                    }
-                    ${selectedAnswer && isOptionCorrect && "bg-green-200"}
-                  `}
+          {!quiz && !showResults && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Category
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full border rounded p-2"
                 >
-                  <span dangerouslySetInnerHTML={{ __html: opt }} />
-                  {selectedAnswer &&
-                    (isSelected ? (
-                      isCorrect ? (
-                        <span>✅</span>
-                      ) : (
-                        <span>❌</span>
-                      )
-                    ) : isOptionCorrect ? (
-                      <span>✅</span>
-                    ) : null)}
-                </li>
-              );
-            })}
-          </ul>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          {selectedAnswer && (
-            <div className="mt-4">
-              {!isCorrect && (
-                <p className="text-red-600">
-                  Correct Answer: {currentQ.correctAnswer}
-                </p>
-              )}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Questions
+                </label>
+                <div className="flex gap-4">
+                  {["3", "5", "10"].map((num) => (
+                    <label key={num} className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        value={num}
+                        checked={numQuestions === num}
+                        onChange={(e) => setNumQuestions(e.target.value)}
+                      />
+                      {num}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Difficulty
+                </label>
+                <div className="flex gap-4">
+                  {["easy", "medium", "hard"].map((level) => (
+                    <label key={level} className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        value={level}
+                        checked={difficulty === level}
+                        onChange={(e) => setDifficulty(e.target.value)}
+                      />
+                      <span className="capitalize">{level}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               <button
-                onClick={handleNext}
-                className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                onClick={handleStart}
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
               >
-                {currentIndex + 1 === quiz.length
-                  ? "View Results"
-                  : "Next Question"}
+                {loading ? "Loading..." : "Start Quiz"}
+              </button>
+            </div>
+          )}
+
+          {quiz && !showResults && (
+            <>
+              <div className="flex justify-between text-sm text-gray-600 mb-4">
+                <span>
+                  Question {currentIndex + 1} / {quiz.length}
+                </span>
+                <span>Score: {score}</span>
+              </div>
+
+              <h2
+                className="text-lg font-semibold mb-6"
+                dangerouslySetInnerHTML={{
+                  __html: quiz[currentIndex].question,
+                }}
+              />
+
+              <ul className="space-y-3">
+                {quiz[currentIndex].options.map((opt, i) => {
+                  const isOptionCorrect =
+                    opt === quiz[currentIndex].correctAnswer;
+                  const isSelected = selectedAnswer === opt;
+                  return (
+                    <li
+                      key={i}
+                      onClick={() => handleAnswer(opt)}
+                      className={`p-4 rounded-lg cursor-pointer transition flex justify-between items-center
+                        ${
+                          isSelected
+                            ? isCorrect
+                              ? "bg-green-200"
+                              : "bg-red-200"
+                            : "bg-gray-100 hover:bg-gray-200"
+                        }
+                        ${
+                          selectedAnswer && isOptionCorrect
+                            ? "bg-green-200"
+                            : ""
+                        }
+                      `}
+                      dangerouslySetInnerHTML={{ __html: opt }}
+                    />
+                  );
+                })}
+              </ul>
+
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={() => {
+                    setQuiz(null);
+                    setShowResults(false);
+                    setScore(0);
+                    setCurrentIndex(0);
+                    setSelectedAnswer(null);
+                    setIsCorrect(null);
+                    setAiOpen(false);
+                    setAiMessages([]);
+                  }}
+                  className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={handleAskAI}
+                  className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700"
+                >
+                  Ask AI
+                </button>
+              </div>
+
+              {selectedAnswer && (
+                <div className="mt-4">
+                  {!isCorrect && (
+                    <p className="text-red-600">
+                      Correct Answer: {quiz[currentIndex].correctAnswer}
+                    </p>
+                  )}
+                  <button
+                    onClick={handleNext}
+                    className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                  >
+                    {currentIndex + 1 === quiz.length
+                      ? "View Results"
+                      : "Next Question"}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {showResults && (
+            <div className="text-center p-6">
+              <h2 className="text-2xl font-bold mb-4">Quiz Complete 🎉</h2>
+              <p className="text-xl mb-6">
+                Your Score: {score} / {quiz?.length}
+              </p>
+              <button
+                onClick={() => {
+                  setQuiz(null);
+                  setShowResults(false);
+                  setScore(0);
+                  setCurrentIndex(0);
+                  setSelectedAnswer(null);
+                  setIsCorrect(null);
+                  setAiOpen(false);
+                  setAiMessages([]);
+                }}
+                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+              >
+                New Quiz
               </button>
             </div>
           )}
         </div>
-      </main>
-    );
-  }
 
-  if (showResults) {
-    return (
-      <main className="min-h-screen flex items-start justify-center bg-gray-50 mt-12">
-        <div className="max-w-2xl w-full bg-white p-8 rounded-lg shadow-md text-center">
-          <h2 className="text-2xl font-bold mb-4">Quiz Complete 🎉</h2>
-          <p className="text-xl mb-6">
-            Your Score: {score} / {quiz?.length}
-          </p>
-          <button
-            onClick={() => {
-              setQuiz(null);
-              setShowResults(false);
-              setScore(0);
-              setCurrentIndex(0);
-            }}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-          >
-            New Quiz
-          </button>
+        <div className="flex-shrink-0 w-full lg:w-96 flex flex-col gap-6">
+          {aiOpen && quiz && (
+            <AIAssistant
+              aiMessages={aiMessages}
+              aiInput={aiInput}
+              setAiInput={setAiInput}
+              aiLoading={aiLoading}
+              handleAIMessage={handleAIMessage}
+              quizLanguage={"English"}
+              aiScrollRef={aiScrollRef}
+              questionContainerRef={questionContainerRef}
+            />
+          )}
         </div>
-      </main>
-    );
-  }
-
-  return null;
+      </div>
+    </main>
+  );
 }

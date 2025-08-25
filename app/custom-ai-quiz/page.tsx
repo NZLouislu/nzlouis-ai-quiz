@@ -1,13 +1,11 @@
 "use client";
 import { useState } from "react";
-import Footer from "@/components/Footer";
 export default function CustomAIQuizPage() {
   const [quizTopic, setQuizTopic] = useState("");
   const [numberOfQuestions, setNumberOfQuestions] = useState("3");
   const [difficulty, setDifficulty] = useState("easy");
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle quiz generation logic here
     console.log({
       quizTopic,
       numberOfQuestions,
@@ -22,7 +20,6 @@ export default function CustomAIQuizPage() {
             Create Your Custom AI Quiz
           </h1>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Quiz Topic Input */}
             <div>
               <label
                 htmlFor="quizTopic"
@@ -40,7 +37,6 @@ export default function CustomAIQuizPage() {
                 required
               />
             </div>
-            {/* Number of Questions */}
             <div>
               <label className="block text-sm font-medium mb-2">
                 Number of Questions
@@ -61,7 +57,6 @@ export default function CustomAIQuizPage() {
                 ))}
               </div>
             </div>
-            {/* Difficulty Selection */}
             <div>
               <label className="block text-sm font-medium mb-2">
                 Difficulty
@@ -82,7 +77,6 @@ export default function CustomAIQuizPage() {
                 ))}
               </div>
             </div>
-            {/* Submit Button */}
             <button
               type="submit"
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
