@@ -35,6 +35,11 @@ export default function GeminiAIQuizPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+
+  const [aiRecommendOpen, setAiRecommendOpen] = useState(false);
+  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [aiLoadingRecommend, setAiLoadingRecommend] = useState(false);
+
   const aiScrollRef = useRef<HTMLDivElement>(null);
   const questionContainerRef = useRef<HTMLDivElement>(null);
 
@@ -60,6 +65,8 @@ export default function GeminiAIQuizPage() {
     setAiInput("");
     setAiOpen(false);
     setShowHint(false);
+    setAiRecommendOpen(false);
+    setRecommendations([]);
   };
 
   const handleReset = () => {
@@ -178,6 +185,24 @@ export default function GeminiAIQuizPage() {
 
   const handleShowHint = () => setShowHint(true);
 
+  const handleRecommendTopic = async () => {
+    setAiRecommendOpen(true);
+    setAiLoadingRecommend(true);
+    try {
+      const response = await fetch("/api/recommend-topic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language: quizLanguage }),
+      });
+      const data = await response.json();
+      setRecommendations(data.topics || []);
+    } catch {
+      setRecommendations([]);
+    } finally {
+      setAiLoadingRecommend(false);
+    }
+  };
+
   if (!isMounted) return null;
 
   const currentQuestion = quiz ? quiz[currentQuestionIndex] : null;
@@ -188,6 +213,7 @@ export default function GeminiAIQuizPage() {
   return (
     <main className="min-h-screen pt-16 pb-8 px-4 bg-gray-50">
       <div className="max-w-5xl mx-auto mt-8 flex flex-col lg:flex-row gap-6">
+        {/* Left: Quiz Form / Question */}
         <div
           className="flex-1 bg-white p-8 rounded-lg shadow-md"
           ref={questionContainerRef}
@@ -254,19 +280,28 @@ export default function GeminiAIQuizPage() {
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
-              >
-                {loading
-                  ? quizLanguage === "中文"
-                    ? "生成题目中..."
-                    : "Generating Quiz..."
-                  : quizLanguage === "中文"
-                  ? "生成题目"
-                  : "Generate Quiz"}
-              </button>
+              <div className="flex gap-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
+                >
+                  {loading
+                    ? quizLanguage === "中文"
+                      ? "生成题目中..."
+                      : "Generating Quiz..."
+                    : quizLanguage === "中文"
+                    ? "生成题目"
+                    : "Generate Quiz"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRecommendTopic}
+                  className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
+                >
+                  {quizLanguage === "中文" ? "推荐Topic" : "Recommend Topic"}
+                </button>
+              </div>
             </form>
           )}
 
@@ -385,74 +420,120 @@ export default function GeminiAIQuizPage() {
           )}
         </div>
 
-        {quiz && currentQuestion && aiOpen && (
-          <div
-            className="flex-shrink-0 w-full lg:w-96 bg-white rounded-lg shadow-md p-4 flex flex-col"
-            style={{
-              maxHeight: questionContainerRef.current?.offsetHeight || "80vh",
-            }}
-          >
-            <h3 className="font-semibold text-lg mb-2">
-              {quizLanguage === "中文" ? "AI 助手" : "AI Assistant"}
-            </h3>
+        {/* Right Side Panels */}
+        <div className="flex-shrink-0 w-full lg:w-96 flex flex-col gap-6">
+          {/* AI Assistant */}
+          {quiz && currentQuestion && aiOpen && (
             <div
-              ref={aiScrollRef}
-              className="flex-1 overflow-y-auto p-2 bg-gray-50 rounded-md mb-2"
+              className="bg-white rounded-lg shadow-md p-4 flex flex-col"
+              style={{
+                maxHeight: questionContainerRef.current?.offsetHeight || "80vh",
+              }}
             >
-              {aiMessages.map((msg, idx) => (
-                <p key={idx} className="mb-2">
-                  <span
-                    className={
-                      msg.role === "user" ? "font-medium" : "font-semibold"
-                    }
-                  >
-                    {msg.role === "user"
-                      ? quizLanguage === "中文"
-                        ? "你: "
-                        : "You: "
-                      : "AI: "}
-                  </span>
-                  {msg.content}
-                </p>
-              ))}
-              {aiLoading && (
-                <p>
-                  {quizLanguage === "中文"
-                    ? "AI 思考中..."
-                    : "AI is thinking..."}
-                </p>
-              )}
-            </div>
-            <div className="flex gap-2 mt-2">
-              <input
-                type="text"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={aiInput}
-                onChange={(e) => setAiInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    if (aiInput.trim()) handleAIMessage(aiInput, "followup");
-                  }
-                }}
-                placeholder={
-                  quizLanguage === "中文"
-                    ? "向AI提问..."
-                    : "Ask AI about this question..."
-                }
-              />
-              <button
-                onClick={() => {
-                  if (aiInput.trim()) handleAIMessage(aiInput, "followup");
-                }}
-                disabled={aiLoading || !aiInput.trim()}
-                className="bg-purple-600 text-white px-4 rounded-md hover:bg-purple-700 transition-colors disabled:bg-purple-400"
+              <h3 className="font-semibold text-lg mb-2">
+                {quizLanguage === "中文" ? "AI 助手" : "AI Assistant"}
+              </h3>
+              <div
+                ref={aiScrollRef}
+                className="flex-1 overflow-y-auto p-2 bg-gray-50 rounded-md mb-2"
               >
-                {quizLanguage === "中文" ? "发送" : "Send"}
+                {aiMessages.map((msg, idx) => (
+                  <p key={idx} className="mb-2">
+                    <span
+                      className={
+                        msg.role === "user" ? "font-medium" : "font-semibold"
+                      }
+                    >
+                      {msg.role === "user"
+                        ? quizLanguage === "中文"
+                          ? "你: "
+                          : "You: "
+                        : "AI: "}
+                    </span>
+                    {msg.content}
+                  </p>
+                ))}
+                {aiLoading && (
+                  <p>
+                    {quizLanguage === "中文"
+                      ? "AI 思考中..."
+                      : "AI is thinking..."}
+                  </p>
+                )}
+              </div>
+              <div className="flex gap-2 mt-2">
+                <input
+                  type="text"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={aiInput}
+                  onChange={(e) => setAiInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (aiInput.trim()) handleAIMessage(aiInput, "followup");
+                    }
+                  }}
+                  placeholder={
+                    quizLanguage === "中文"
+                      ? "向AI提问..."
+                      : "Ask AI about this question..."
+                  }
+                />
+                <button
+                  onClick={() => {
+                    if (aiInput.trim()) handleAIMessage(aiInput, "followup");
+                  }}
+                  disabled={aiLoading || !aiInput.trim()}
+                  className="bg-purple-600 text-white px-4 rounded-md hover:bg-purple-700 transition-colors disabled:bg-purple-400"
+                >
+                  {quizLanguage === "中文" ? "发送" : "Send"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* AI Recommend Topics Panel */}
+          {aiRecommendOpen && (
+            <div
+              className="bg-white rounded-lg shadow-md p-4 flex flex-col"
+              style={{
+                maxHeight: questionContainerRef.current?.offsetHeight || "80vh",
+              }}
+            >
+              <h3 className="font-semibold text-lg mb-2">
+                {quizLanguage === "中文" ? "推荐题目" : "Recommended Topics"}
+              </h3>
+              <div className="flex-1 overflow-y-auto p-2 bg-gray-50 rounded-md mb-2">
+                {aiLoadingRecommend ? (
+                  <p>
+                    {quizLanguage === "中文" ? "AI 生成中..." : "Generating..."}
+                  </p>
+                ) : (
+                  <ul className="space-y-2">
+                    {recommendations.map((topic, idx) => (
+                      <li
+                        key={idx}
+                        onClick={() => {
+                          setQuizTopic(topic);
+                          setAiRecommendOpen(false);
+                        }}
+                        className="cursor-pointer p-2 rounded-md hover:bg-gray-200 transition-colors"
+                      >
+                        {topic}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <button
+                onClick={() => setAiRecommendOpen(false)}
+                className="mt-4 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors"
+              >
+                {quizLanguage === "中文" ? "关闭" : "Close"}
               </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </main>
   );
