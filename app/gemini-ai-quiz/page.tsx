@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import QuizForm from "../../components/QuizForm";
 import AIAssistant from "../../components/AIAssistant";
 import RecommendTopicsPanel from "../../components/RecommendTopicsPanel";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type QuizItem = {
   question: string;
@@ -46,7 +48,6 @@ export default function GeminiAIQuizPage() {
   const questionContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setIsMounted(true), []);
-
   useEffect(() => {
     if (aiScrollRef.current)
       aiScrollRef.current.scrollTop = aiScrollRef.current.scrollHeight;
@@ -212,109 +213,130 @@ export default function GeminiAIQuizPage() {
     : false;
 
   return (
-    <main className="min-h-screen pt-16 pb-8 px-4 bg-gray-50">
-      <div className="max-w-5xl mx-auto mt-8 flex flex-col lg:flex-row gap-6">
-        <div
-          className="flex-1 bg-white p-8 rounded-lg shadow-md"
+    <Card className="min-h-screen p-4 bg-gray-50">
+      <CardContent className="flex flex-col lg:flex-row gap-4 justify-center w-full max-w-[900px] mx-auto px-4">
+        <Card
+          className="flex-1 p-6 lg:max-w-[560px] w-full"
           ref={questionContainerRef}
         >
-          <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">
-            Gemini AI Quiz
-          </h1>
-
-          {!quiz && !showResults && (
-            <QuizForm
-              quizTopic={quizTopic}
-              setQuizTopic={setQuizTopic}
-              numberOfQuestions={numberOfQuestions}
-              setNumberOfQuestions={setNumberOfQuestions}
-              difficulty={difficulty}
-              setDifficulty={setDifficulty}
-              loading={loading}
-              quizLanguage={quizLanguage}
-              onSubmit={handleSubmit}
-              onRecommend={handleRecommendTopic}
-            />
-          )}
-
-          {error && (
-            <div className="mt-8 p-4 bg-red-100 text-red-700 rounded-md">
-              <p>{error}</p>
-            </div>
-          )}
-
-          {quiz && !showResults && currentQuestion && (
-            <div className="mt-8 space-y-6">
-              <p className="text-gray-600 text-right">
-                {quizLanguage === "中文" ? "问题" : "Question"}{" "}
-                {currentQuestionIndex + 1}{" "}
-                {quizLanguage === "中文" ? "共" : "of"} {quiz.length}
-              </p>
-              <div className="bg-gray-100 p-6 rounded-lg">
-                <p className="font-semibold text-xl text-gray-900 mb-4">
-                  {currentQuestion.question}
-                </p>
-                <ul className="space-y-3">
-                  {currentQuestion.options.map((option, idx) => (
-                    <li
-                      key={idx}
-                      onClick={() => handleOptionClick(option)}
-                      className={`p-4 rounded-md cursor-pointer transition-colors ${
-                        selectedAnswer === option
-                          ? isCorrect
-                            ? "bg-green-200 text-green-800 border-2 border-green-500"
-                            : "bg-red-200 text-red-800 border-2 border-red-500"
-                          : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                      } ${
-                        selectedAnswer !== null &&
-                        option === currentQuestion.correctAnswer
-                          ? "bg-green-200 text-green-800 border-2 border-green-500"
-                          : ""
-                      }`}
-                    >
-                      {option}{" "}
-                      {selectedAnswer === option && (
-                        <span className="ml-2">{isCorrect ? "✅" : "❌"}</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-4 flex gap-3">
-                  <button
-                    onClick={handleShowHint}
-                    className="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600 transition-colors"
-                  >
-                    {quizLanguage === "中文" ? "提示" : "Hint"}
-                  </button>
-                  <button
-                    onClick={handleAskAI}
-                    className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors"
-                  >
-                    {quizLanguage === "中文" ? "Ask AI" : "Ask AI"}
-                  </button>
-                </div>
-
-                {showHint && currentQuestion.hint && (
-                  <p className="mt-2 p-2 bg-gray-200 rounded-md text-gray-800">
-                    {currentQuestion.hint}
+          <CardHeader>
+            <CardTitle className="text-center text-3xl">
+              Gemini AI Quiz
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!quiz && !showResults && (
+              <div className="w-full">
+                <QuizForm
+                  quizTopic={quizTopic}
+                  setQuizTopic={setQuizTopic}
+                  numberOfQuestions={numberOfQuestions}
+                  setNumberOfQuestions={setNumberOfQuestions}
+                  difficulty={difficulty}
+                  setDifficulty={setDifficulty}
+                  loading={loading}
+                  quizLanguage={quizLanguage}
+                  onSubmit={handleSubmit}
+                  onRecommend={handleRecommendTopic}
+                />
+              </div>
+            )}
+            {error && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            {quiz && !showResults && currentQuestion && (
+              <Card className="mt-4 w-full">
+                <CardContent>
+                  <p className="text-right mb-2">
+                    {quizLanguage === "中文" ? "问题" : "Question"}{" "}
+                    {currentQuestionIndex + 1}{" "}
+                    {quizLanguage === "中文" ? "共" : "of"} {quiz.length}
                   </p>
-                )}
-
-                {selectedAnswer && (
-                  <div className="mt-6">
-                    {!isCorrect && (
-                      <p className="text-red-700">
-                        {quizLanguage === "中文"
-                          ? "正确答案"
-                          : "Correct Answer"}
-                        : {currentQuestion.correctAnswer}
-                      </p>
-                    )}
+                  <p className="font-semibold text-xl mb-4">
+                    {currentQuestion.question}
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    {currentQuestion.options.map((option, idx) => {
+                      const selected = selectedAnswer === option;
+                      const correctOption =
+                        option === currentQuestion.correctAnswer;
+                      const wrongSelected = selected && isCorrect === false;
+                      const revealState = selectedAnswer !== null;
+                      const baseClass =
+                        "w-full text-left rounded-md py-3 px-4 transition-all transform focus:outline-none disabled:opacity-90";
+                      const hoverClass =
+                        "hover:shadow-lg hover:scale-[1.01] cursor-pointer";
+                      let stateClass = "bg-gray-50 border border-gray-200";
+                      if (revealState) {
+                        if (correctOption)
+                          stateClass =
+                            "bg-green-300 border-2 border-green-600 text-green-900";
+                        else if (wrongSelected)
+                          stateClass =
+                            "bg-red-300 border-2 border-red-600 text-red-900";
+                        else
+                          stateClass =
+                            "bg-gray-50 border border-gray-200 opacity-80";
+                      } else {
+                        stateClass = "bg-gray-50 border border-gray-200";
+                      }
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => handleOptionClick(option)}
+                          className={`${baseClass} ${stateClass} ${
+                            !revealState ? hoverClass : ""
+                          }`}
+                          disabled={selectedAnswer !== null}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span>{option}</span>
+                            <span className="ml-4">
+                              {selected && (isCorrect ? "✅" : "❌")}
+                              {!selected &&
+                                revealState &&
+                                correctOption &&
+                                "✅"}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-4 flex gap-3">
+                    <button
+                      onClick={handleShowHint}
+                      className="flex-1 py-3 rounded-md text-white font-medium shadow-sm focus:outline-none transition-all bg-yellow-500 hover:bg-yellow-600"
+                    >
+                      {quizLanguage === "中文" ? "提示" : "Hint"}
+                    </button>
+                    <button
+                      onClick={handleAskAI}
+                      className="flex-1 py-3 rounded-md text-white font-medium shadow-sm focus:outline-none transition-all bg-violet-600 hover:bg-violet-700"
+                    >
+                      {quizLanguage === "中文" ? "Ask AI" : "Ask AI"}
+                    </button>
+                  </div>
+                  {showHint && currentQuestion.hint && (
+                    <Card className="mt-3 p-3 bg-gray-50">
+                      <CardContent>{currentQuestion.hint}</CardContent>
+                    </Card>
+                  )}
+                  {selectedAnswer && isCorrect === false && (
+                    <p className="mt-3 text-red-600 font-medium">
+                      {quizLanguage === "中文"
+                        ? "正确答案："
+                        : "Correct Answer: "}{" "}
+                      {currentQuestion.correctAnswer}
+                    </p>
+                  )}
+                  {selectedAnswer && (
                     <div className="mt-4 flex gap-3">
                       <button
                         onClick={handleNextQuestion}
-                        className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                        className="flex-1 py-3 rounded-md text-white font-medium shadow-sm focus:outline-none transition-all bg-blue-600 hover:bg-blue-700"
                       >
                         {isLastQuestion
                           ? quizLanguage === "中文"
@@ -326,41 +348,42 @@ export default function GeminiAIQuizPage() {
                       </button>
                       <button
                         onClick={handleReset}
-                        className="flex-1 bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+                        className="flex-1 py-3 rounded-md text-gray-800 font-medium shadow-sm focus:outline-none transition-all bg-gray-200 hover:bg-gray-300"
                       >
                         {quizLanguage === "中文" ? "重置" : "Reset"}
                       </button>
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+                  )}
+                </CardContent>
+              </Card>
+            )}
+            {showResults && (
+              <Card className="mt-4 p-6 text-center w-full">
+                <CardContent>
+                  <CardTitle className="text-3xl mb-2">
+                    {quizLanguage === "中文" ? "测验完成!" : "Quiz Complete!"}
+                  </CardTitle>
+                  <p className="text-2xl">
+                    {quizLanguage === "中文"
+                      ? "您的最终得分:"
+                      : "Your final score is:"}
+                  </p>
+                  <p className="text-5xl font-extrabold text-blue-600 mt-2">
+                    {score} / {quiz ? quiz.length : 0}
+                  </p>
+                  <button
+                    onClick={handleReset}
+                    className="mt-4 py-3 px-6 rounded-md text-white font-medium bg-blue-600 hover:bg-blue-700"
+                  >
+                    {quizLanguage === "中文" ? "创建新测验" : "Create New Quiz"}
+                  </button>
+                </CardContent>
+              </Card>
+            )}
+          </CardContent>
+        </Card>
 
-          {showResults && (
-            <div className="mt-8 text-center p-8 bg-white rounded-lg shadow-md">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">
-                {quizLanguage === "中文" ? "测验完成!" : "Quiz Complete!"}
-              </h2>
-              <p className="text-2xl text-gray-700">
-                {quizLanguage === "中文"
-                  ? "您的最终得分:"
-                  : "Your final score is:"}
-              </p>
-              <p className="text-5xl font-extrabold text-blue-600 mt-2">
-                {score} / {quiz ? quiz.length : 0}
-              </p>
-              <button
-                onClick={handleReset}
-                className="mt-8 bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {quizLanguage === "中文" ? "创建新测验" : "Create New Quiz"}
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="flex-shrink-0 w-full lg:w-96 flex flex-col gap-6">
+        <div className="flex-shrink-0 w-full lg:w-[340px] flex flex-col gap-4">
           {quiz && currentQuestion && aiOpen && (
             <AIAssistant
               aiMessages={aiMessages}
@@ -374,7 +397,6 @@ export default function GeminiAIQuizPage() {
               onClose={() => setAiOpen(false)}
             />
           )}
-
           {aiRecommendOpen && (
             <RecommendTopicsPanel
               aiLoadingRecommend={aiLoadingRecommend}
@@ -389,7 +411,7 @@ export default function GeminiAIQuizPage() {
             />
           )}
         </div>
-      </div>
-    </main>
+      </CardContent>
+    </Card>
   );
 }
