@@ -213,48 +213,49 @@ export default function GeminiAIQuizPage() {
     : false;
 
   return (
-    <Card className="min-h-screen p-4 bg-gray-50">
-      <CardContent className="flex flex-col lg:flex-row gap-4 justify-center w-full max-w-[900px] mx-auto px-4">
-        <Card
-          className="flex-1 p-6 lg:max-w-[560px] w-full"
-          ref={questionContainerRef}
-        >
+    <div className="min-h-screen bg-gray-50 flex items-start justify-center p-4">
+      <div className="w-full max-w-[900px] grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6 items-start">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-center text-3xl">
+            <CardTitle className="text-2xl md:text-3xl text-center">
               Gemini AI Quiz
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            {!quiz && !showResults && (
-              <div className="w-full">
-                <QuizForm
-                  quizTopic={quizTopic}
-                  setQuizTopic={setQuizTopic}
-                  numberOfQuestions={numberOfQuestions}
-                  setNumberOfQuestions={setNumberOfQuestions}
-                  difficulty={difficulty}
-                  setDifficulty={setDifficulty}
-                  loading={loading}
-                  quizLanguage={quizLanguage}
-                  onSubmit={handleSubmit}
-                  onRecommend={handleRecommendTopic}
-                />
-              </div>
-            )}
-            {error && (
-              <Alert variant="destructive" className="mt-4">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            {quiz && !showResults && currentQuestion && (
-              <Card className="mt-4 w-full">
-                <CardContent>
-                  <p className="text-right mb-2">
+          <CardContent className="p-6">
+            <div ref={questionContainerRef}>
+              {!quiz && !showResults && (
+                <div className="w-full">
+                  <QuizForm
+                    quizTopic={quizTopic}
+                    setQuizTopic={setQuizTopic}
+                    numberOfQuestions={numberOfQuestions}
+                    setNumberOfQuestions={setNumberOfQuestions}
+                    difficulty={difficulty}
+                    setDifficulty={setDifficulty}
+                    loading={loading}
+                    quizLanguage={quizLanguage}
+                    onSubmit={handleSubmit}
+                    onRecommend={handleRecommendTopic}
+                  />
+                </div>
+              )}
+
+              {error && (
+                <div className="mt-4">
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                </div>
+              )}
+
+              {quiz && !showResults && currentQuestion && (
+                <div className="mt-6">
+                  <p className="text-right mb-2 text-sm md:text-base">
                     {quizLanguage === "中文" ? "问题" : "Question"}{" "}
                     {currentQuestionIndex + 1}{" "}
                     {quizLanguage === "中文" ? "共" : "of"} {quiz.length}
                   </p>
-                  <p className="font-semibold text-xl mb-4">
+                  <p className="font-semibold text-lg md:text-xl mb-4">
                     {currentQuestion.question}
                   </p>
                   <div className="flex flex-col gap-3">
@@ -294,7 +295,7 @@ export default function GeminiAIQuizPage() {
                           <div className="flex items-center justify-between">
                             <span>{option}</span>
                             <span className="ml-4">
-                              {selected && (isCorrect ? "✅" : "❌")}
+                              {selected && (isCorrect ? "✅" : "❌")}{" "}
                               {!selected &&
                                 revealState &&
                                 correctOption &&
@@ -305,6 +306,7 @@ export default function GeminiAIQuizPage() {
                       );
                     })}
                   </div>
+
                   <div className="mt-4 flex gap-3">
                     <button
                       onClick={handleShowHint}
@@ -319,11 +321,13 @@ export default function GeminiAIQuizPage() {
                       {quizLanguage === "中文" ? "Ask AI" : "Ask AI"}
                     </button>
                   </div>
+
                   {showHint && currentQuestion.hint && (
-                    <Card className="mt-3 p-3 bg-gray-50">
-                      <CardContent>{currentQuestion.hint}</CardContent>
-                    </Card>
+                    <div className="mt-3 p-3 bg-gray-50 rounded-md">
+                      {currentQuestion.hint}
+                    </div>
                   )}
+
                   {selectedAnswer && isCorrect === false && (
                     <p className="mt-3 text-red-600 font-medium">
                       {quizLanguage === "中文"
@@ -332,6 +336,7 @@ export default function GeminiAIQuizPage() {
                       {currentQuestion.correctAnswer}
                     </p>
                   )}
+
                   {selectedAnswer && (
                     <div className="mt-4 flex gap-3">
                       <button
@@ -354,64 +359,68 @@ export default function GeminiAIQuizPage() {
                       </button>
                     </div>
                   )}
-                </CardContent>
-              </Card>
-            )}
-            {showResults && (
-              <Card className="mt-4 p-6 text-center w-full">
-                <CardContent>
-                  <CardTitle className="text-3xl mb-2">
-                    {quizLanguage === "中文" ? "测验完成!" : "Quiz Complete!"}
-                  </CardTitle>
-                  <p className="text-2xl">
-                    {quizLanguage === "中文"
-                      ? "您的最终得分:"
-                      : "Your final score is:"}
-                  </p>
-                  <p className="text-5xl font-extrabold text-blue-600 mt-2">
-                    {score} / {quiz ? quiz.length : 0}
-                  </p>
-                  <button
-                    onClick={handleReset}
-                    className="mt-4 py-3 px-6 rounded-md text-white font-medium bg-blue-600 hover:bg-blue-700"
-                  >
-                    {quizLanguage === "中文" ? "创建新测验" : "Create New Quiz"}
-                  </button>
-                </CardContent>
-              </Card>
-            )}
+                </div>
+              )}
+
+              {showResults && (
+                <div className="mt-6">
+                  <div className="text-center">
+                    <h2 className="text-2xl md:text-3xl mb-2">
+                      {quizLanguage === "中文" ? "测验完成!" : "Quiz Complete!"}
+                    </h2>
+                    <p className="text-lg">
+                      {quizLanguage === "中文"
+                        ? "您的最终得分:"
+                        : "Your final score is:"}
+                    </p>
+                    <p className="text-4xl md:text-5xl font-extrabold text-blue-600 mt-2">
+                      {score} / {quiz ? quiz.length : 0}
+                    </p>
+                    <button
+                      onClick={handleReset}
+                      className="mt-4 py-3 px-6 rounded-md text-white font-medium bg-blue-600 hover:bg-blue-700"
+                    >
+                      {quizLanguage === "中文"
+                        ? "创建新测验"
+                        : "Create New Quiz"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
 
-        <div className="flex-shrink-0 w-full lg:w-[340px] flex flex-col gap-4">
+        <div className="space-y-4">
           {quiz && currentQuestion && aiOpen && (
-            <AIAssistant
-              aiMessages={aiMessages}
-              aiInput={aiInput}
-              setAiInput={setAiInput}
-              aiLoading={aiLoading}
-              handleAIMessage={handleAIMessage}
-              quizLanguage={quizLanguage}
-              aiScrollRef={aiScrollRef}
-              questionContainerRef={questionContainerRef}
-              onClose={() => setAiOpen(false)}
-            />
+                <AIAssistant
+                  aiMessages={aiMessages}
+                  aiInput={aiInput}
+                  setAiInput={setAiInput}
+                  aiLoading={aiLoading}
+                  handleAIMessage={handleAIMessage}
+                  quizLanguage={quizLanguage}
+                  aiScrollRef={aiScrollRef}
+                  questionContainerRef={questionContainerRef}
+                  onClose={() => setAiOpen(false)}
+                />
           )}
+
           {aiRecommendOpen && (
             <RecommendTopicsPanel
               aiLoadingRecommend={aiLoadingRecommend}
               recommendations={recommendations}
               onSelectTopic={(topic) => {
-                setQuizTopic(topic);
-                setAiRecommendOpen(false);
-              }}
+                              setQuizTopic(topic);
+                              setAiRecommendOpen(false);
+                            }}
               onClose={() => setAiRecommendOpen(false)}
               questionContainerRef={questionContainerRef}
               quizLanguage={quizLanguage}
             />
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
