@@ -21,10 +21,7 @@ export default function RecommendTopicsPanel({
 }: Props) {
   return (
     <div
-      className="bg-white rounded-lg shadow-md p-4 flex flex-col"
-      style={{
-        maxHeight: questionContainerRef.current?.offsetHeight || "80vh",
-      }}
+      className="bg-white rounded-lg shadow-md p-4 flex flex-col h-full"
     >
       <h3 className="font-semibold text-lg mb-2">
         {quizLanguage === "中文" ? "推荐题目" : "Recommended Topics"}
