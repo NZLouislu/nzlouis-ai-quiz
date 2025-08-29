@@ -269,7 +269,7 @@ export default function TriviaQuizPage() {
               </button>
             </div>
           )}
-        </div> 
+        </div>
 
         <div className="flex-shrink-0 w-full lg:w-96 flex flex-col gap-6">
           {aiOpen && quiz && (
