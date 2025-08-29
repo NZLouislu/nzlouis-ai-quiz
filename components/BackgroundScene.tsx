@@ -70,7 +70,7 @@ const BackgroundScene = () => {
           width: 100px;
           height: 40px;
           top: 15%;
-          animation-duration: 80s;
+          animation-duration: 240s; /* 160s * 1.5 = 340s */
           animation-delay: -2s;
         }
 
@@ -92,7 +92,7 @@ const BackgroundScene = () => {
           width: 80px;
           height: 30px;
           top: 35%;
-          animation-duration: 90s;
+          animation-duration: 270s; /* 180s * 1.5 = 360s */
           animation-delay: -10s;
         }
 
@@ -114,7 +114,7 @@ const BackgroundScene = () => {
           width: 120px;
           height: 40px;
           top: 60%;
-          animation-duration: 100s;
+          animation-duration: 300s; /* 200s * 1.5 = 380s */
           animation-delay: -15s;
         }
 
@@ -136,7 +136,7 @@ const BackgroundScene = () => {
           width: 90px;
           height: 35px;
           top: 75%;
-          animation-duration: 84s;
+          animation-duration: 252s; /* 168s * 1.5 = 272s */
           animation-delay: -5s;
         }
 
@@ -158,7 +158,7 @@ const BackgroundScene = () => {
           width: 110px;
           height: 45px;
           top: 45%;
-          animation-duration: 96s;
+          animation-duration: 288s; /* 192s * 1.5 = 288s */
           animation-delay: -20s;
         }
 
