@@ -21,12 +21,12 @@ export default function RecommendTopicsPanel({
 }: Props) {
   return (
     <div
-      className="bg-white rounded-lg shadow-md p-4 flex flex-col h-full"
+      className="bg-white/30 backdrop-blur-md rounded-lg shadow-xl p-4 flex flex-col h-full text-gray-800 dark:text-gray-100"
     >
       <h3 className="font-semibold text-lg mb-2">
         {quizLanguage === "中文" ? "推荐题目" : "Recommended Topics"}
       </h3>
-      <div className="flex-1 overflow-y-auto p-2 bg-gray-50 rounded-md mb-2">
+      <div className="flex-1 overflow-y-auto p-2  rounded-md mb-2">
         {aiLoadingRecommend ? (
           <p>{quizLanguage === "中文" ? "AI 生成中..." : "Generating..."}</p>
         ) : (

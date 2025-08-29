@@ -160,26 +160,26 @@ export default function TriviaQuizPage() {
   };
 
   return (
-    <main className="min-h-screen pt-16 pb-8 px-4 bg-gray-50">
-      <div className="max-w-5xl mx-auto mt-8 flex flex-col lg:flex-row gap-6">
+    <div className="min-h-screen flex items-start p-4">
+      <div className="w-full max-w-[900px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6 items-start md:-translate-x-[8%] lg:-translate-x-[6%]">
         <div
-          className="flex-1 bg-white p-8 rounded-lg shadow-md"
+          className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl"
           ref={questionContainerRef}
         >
-          <h1 className="text-2xl font-bold text-center mb-6">
+          <h1 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-gray-900">
             🎯 Trivia Quiz
           </h1>
 
           {!quiz && !showResults && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium mb-2 text-gray-800 dark:text-gray-900">
                   Category
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full border rounded p-2"
+                  className="w-full border rounded p-2 bg-white/50 dark:bg-gray-800/50 text-gray-800 dark:text-gray-100"
                 >
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -190,17 +190,18 @@ export default function TriviaQuizPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium mb-2 text-gray-800 dark:text-gray-900">
                   Questions
                 </label>
-                <div className="flex gap-4">
-                  {["3", "5", "10"].map((num) => (
+                <div className="flex gap-4 text-gray-800 dark:text-gray-900">
+                  {[ "3", "5", "10" ].map((num) => (
                     <label key={num} className="flex items-center gap-1">
                       <input
                         type="radio"
                         value={num}
                         checked={numQuestions === num}
                         onChange={(e) => setNumQuestions(e.target.value)}
+                        className="form-radio text-blue-600"
                       />
                       {num}
                     </label>
@@ -209,17 +210,18 @@ export default function TriviaQuizPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium mb-2 text-gray-800 dark:text-gray-900">
                   Difficulty
                 </label>
-                <div className="flex gap-4">
-                  {["easy", "medium", "hard"].map((level) => (
+                <div className="flex gap-4 text-gray-800 dark:text-gray-900">
+                  {[ "easy", "medium", "hard" ].map((level) => (
                     <label key={level} className="flex items-center gap-1">
                       <input
                         type="radio"
                         value={level}
                         checked={difficulty === level}
                         onChange={(e) => setDifficulty(e.target.value)}
+                        className="form-radio text-blue-600"
                       />
                       <span className="capitalize">{level}</span>
                     </label>
@@ -257,8 +259,8 @@ export default function TriviaQuizPage() {
 
           {showResults && (
             <div className="text-center p-6">
-              <h2 className="text-2xl font-bold mb-4">Quiz Complete 🎉</h2>
-              <p className="text-xl mb-6">
+              <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-900">Quiz Complete 🎉</h2>
+              <p className="text-xl mb-6 text-gray-700 dark:text-gray-800">
                 Your Score: {score} / {quiz?.length}
               </p>
               <button
@@ -271,7 +273,7 @@ export default function TriviaQuizPage() {
           )}
         </div>
 
-        <div className="flex-shrink-0 w-full lg:w-96 flex flex-col gap-6">
+        <div className="space-y-4">
           {aiOpen && quiz && (
             <AIAssistant
               aiMessages={aiMessages}
@@ -287,6 +289,6 @@ export default function TriviaQuizPage() {
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -211,13 +211,13 @@ export default function CustomAIQuizPage() {
   const currentQuestion = quiz ? quiz[currentQuestionIndex] : null;
 
   return (
-    <main className="min-h-screen pt-16 pb-8 px-4 bg-gray-50">
-      <div className="max-w-5xl mx-auto mt-8 flex flex-col lg:flex-row gap-6">
+    <div className="min-h-screen flex items-start p-4">
+      <div className="w-full max-w-[900px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6 items-start md:-translate-x-[8%] lg:-translate-x-[6%]">
         <div
-          className="flex-1 bg-white p-8 rounded-lg shadow-md"
+          className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl"
           ref={questionContainerRef}
         >
-          <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">
+          <h1 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-gray-900">
             Custom AI Quiz
           </h1>
 
@@ -239,7 +239,7 @@ export default function CustomAIQuizPage() {
           )}
 
           {error && (
-            <div className="mt-8 p-4 bg-red-100 text-red-700 rounded-md">
+            <div className="mt-8 p-4 bg-red-100/50 text-red-700 rounded-md backdrop-blur-sm">
               <p>{error}</p>
             </div>
           )}
@@ -266,11 +266,11 @@ export default function CustomAIQuizPage() {
           )}
 
           {showResults && (
-            <div className="mt-8 text-center p-8 bg-white rounded-lg shadow-md">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">
+            <div className="mt-8 text-center p-8 bg-white/30 backdrop-blur-md rounded-lg shadow-xl">
+              <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-900 mb-4">
                 {quizLanguage === "中文" ? "测验完成!" : "Quiz Complete!"}
               </h2>
-              <p className="text-2xl text-gray-700">
+              <p className="text-2xl text-gray-700 dark:text-gray-800">
                 {quizLanguage === "中文"
                   ? "您的最终得分:"
                   : "Your final score is:"}
@@ -288,7 +288,7 @@ export default function CustomAIQuizPage() {
           )}
         </div>
 
-        <div className="flex-shrink-0 w-full lg:w-96 flex flex-col gap-6">
+        <div className="space-y-4">
           {quiz && currentQuestion && aiOpen && (
             <AIAssistant
               aiMessages={aiMessages}
@@ -318,6 +318,6 @@ export default function CustomAIQuizPage() {
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }

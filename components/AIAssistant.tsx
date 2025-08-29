@@ -35,7 +35,7 @@ export default function AIAssistant({
 }: Props) {
   return (
     <div
-      className="relative bg-white rounded-lg shadow-md p-4 flex flex-col text-black"
+      className="relative bg-white/30 backdrop-blur-md rounded-lg shadow-xl p-6 flex flex-col text-gray-800 dark:text-gray-100"
       style={{
         maxHeight: questionContainerRef.current?.offsetHeight || "80vh",
       }}
@@ -43,23 +43,21 @@ export default function AIAssistant({
       <button
         onClick={onClose}
         aria-label="Close"
-        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center font-bold"
+        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-200/50 backdrop-blur-sm text-gray-600 hover:bg-gray-300/50 flex items-center justify-center font-bold"
       >
         ×
       </button>
-      <h3 className="font-semibold text-lg mb-2 pr-8">
+      <h3 className="font-semibold text-lg mb-4 pr-8 text-gray-800 dark:text-gray-100">
         {quizLanguage === "中文" ? "AI 助手" : "AI Assistant"}
       </h3>
       <div
         ref={aiScrollRef}
-        className="flex-1 overflow-y-auto p-2 bg-gray-50 rounded-md mb-2 text-black space-y-3"
+        className="flex-1 overflow-y-auto p-2 bg-white/40 backdrop-blur-sm rounded-md mb-4 text-gray-800 dark:text-gray-100 space-y-3"
       >
         {aiMessages.map((msg, idx) => (
           <div
             key={idx}
-            className={`flex items-start ${
-              msg.role === "assistant" ? "justify-start" : "justify-end"
-            }`}
+            className={`flex items-start ${msg.role === "assistant" ? "justify-start" : "justify-end"}`}
           >
             {msg.role === "assistant" && (
               <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-2">
@@ -67,11 +65,7 @@ export default function AIAssistant({
               </div>
             )}
             <div
-              className={`px-3 py-2 rounded-lg ${
-                msg.role === "assistant"
-                  ? "bg-blue-50 text-left"
-                  : "bg-green-50 text-right"
-              }`}
+              className={`px-3 py-2 rounded-lg ${msg.role === "assistant" ? "bg-blue-50/50 text-left backdrop-blur-sm" : "bg-green-50/50 text-right backdrop-blur-sm"}`}
               style={{ maxWidth: "88%" }}
             >
               {msg.content}
@@ -92,7 +86,7 @@ export default function AIAssistant({
       <div className="flex gap-2 mt-2">
         <input
           type="text"
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50 backdrop-blur-sm text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-300"
           value={aiInput}
           onChange={(e) => setAiInput(e.target.value)}
           onKeyDown={(e) => {
@@ -101,11 +95,7 @@ export default function AIAssistant({
               if (aiInput.trim()) handleAIMessage(aiInput, "followup");
             }
           }}
-          placeholder={
-            quizLanguage === "中文"
-              ? "向AI提问..."
-              : "Ask AI about this question..."
-          }
+          placeholder={quizLanguage === "中文" ? "向AI提问..." : "Ask AI about this question..."}
         />
         <button
           onClick={() => {

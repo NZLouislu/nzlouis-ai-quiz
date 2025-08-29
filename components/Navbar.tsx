@@ -15,7 +15,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-white">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-white/30 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
         <Link href="/" className="flex items-center">
           <Image
@@ -28,7 +28,6 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* Desktop */}
         <div className="hidden md:flex gap-6">
           {items.map((i) => (
             <Link
@@ -42,7 +41,6 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Mobile toggle */}
         <button
           onClick={() => setOpen(!open)}
           className="md:hidden p-2 text-gray-700 hover:text-blue-600 focus:outline-none"
@@ -51,9 +49,8 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu */}
       {open && (
-        <div className="md:hidden border-t bg-white shadow-md">
+        <div className="md:hidden border-t bg-white/30 backdrop-blur-md shadow-md">
           <div className="flex flex-col gap-4 p-4">
             {items.map((i) => (
               <Link

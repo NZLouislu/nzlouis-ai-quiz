@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import QuizForm from "../../components/QuizForm";
 import AIAssistant from "../../components/AIAssistant";
 import RecommendTopicsPanel from "../../components/RecommendTopicsPanel";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import QuizQuestionDisplay from "../../components/QuizQuestionDisplay";
 
@@ -211,15 +210,12 @@ export default function GeminiAIQuizPage() {
   const currentQuestion = quiz ? quiz[currentQuestionIndex] : null;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-start justify-center p-4">
+    <div className="min-h-screen flex items-start justify-center p-4">
       <div className="w-full max-w-[900px] grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6 items-start">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl md:text-3xl text-center">
+        <div className="bg-white/30 backdrop-blur-md rounded-lg shadow-xl p-6">
+          <h1 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-gray-900">
               Gemini AI Quiz
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
+            </h1>
             <div ref={questionContainerRef}>
               {!quiz && !showResults && (
                 <div className="w-full">
@@ -270,10 +266,10 @@ export default function GeminiAIQuizPage() {
               {showResults && (
                 <div className="mt-6">
                   <div className="text-center">
-                    <h2 className="text-2xl md:text-3xl mb-2">
+                    <h2 className="text-2xl md:text-3xl mb-2 text-gray-800 dark:text-gray-900">
                       {quizLanguage === "中文" ? "测验完成!" : "Quiz Complete!"}
                     </h2>
-                    <p className="text-lg">
+                    <p className="text-lg text-gray-700 dark:text-gray-800">
                       {quizLanguage === "中文"
                         ? "您的最终得分:"
                         : "Your final score is:"}
@@ -293,8 +289,7 @@ export default function GeminiAIQuizPage() {
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
+        </div>
 
         <div className="space-y-4">
           {quiz && currentQuestion && aiOpen && (
