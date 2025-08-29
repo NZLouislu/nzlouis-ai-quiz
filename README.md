@@ -1,6 +1,6 @@
 ## nzlouis-ai-quiz
 
-**AI-powered interactive quiz platform** built with Next.js. Supports multiple quiz flows (Gemini AI, Trivia API, Custom HF Space, Gradio UI), AI topic recommendations, and an AI assistant for hints.
+**AI-powered interactive quiz platform** built with Next.js. Supports multiple quiz flows (Gemini AI, Trivia API, Custom HF Space, Gradio UI), AI topic recommendations, and an AI assistant for hints. 
 
 Built as a **showcase project** to demonstrate full-stack AI integration — ideal for remote-first teams in the US & Australia.
 
