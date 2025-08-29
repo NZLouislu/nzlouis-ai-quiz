@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     } = await req.json();
 
     const base = `
-    You are a tutor for multiple-choice quizzes. Provide exactly three concise bullet points. Each bullet should be very short (no more than 12 words). Keep overall length ~50% of a normal hint. Do NOT reveal the correct answer unless the user explicitly requests it.
+    You are a tutor for multiple-choice quizzes. Provide exactly three concise points, each preceded by a hyphen. Each point should be very short (no more than 12 words). Keep overall length ~50% of a normal hint. Do NOT reveal the correct answer unless the user explicitly requests it. Ensure each point is on a new line.
     Question: ${question}
     Options: ${Array.isArray(options) ? options.join(" | ") : ""}
     User selected: ${selectedAnswer ?? "N/A"}
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
 
     const data = await response.json();
     const text =
-      data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+      (data.candidates?.[0]?.content?.parts?.[0]?.text || "No response").replace(/^- /gm, '');
     return NextResponse.json({ message: text });
   } catch (err: unknown) {
     return NextResponse.json(

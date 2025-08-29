@@ -6,6 +6,7 @@ import AIAssistant from "../../components/AIAssistant";
 import RecommendTopicsPanel from "../../components/RecommendTopicsPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import QuizQuestionDisplay from "../../components/QuizQuestionDisplay";
 
 type QuizItem = {
   question: string;
@@ -208,9 +209,6 @@ export default function GeminiAIQuizPage() {
   if (!isMounted) return null;
 
   const currentQuestion = quiz ? quiz[currentQuestionIndex] : null;
-  const isLastQuestion = quiz
-    ? currentQuestionIndex === quiz.length - 1
-    : false;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-start justify-center p-4">
@@ -249,117 +247,24 @@ export default function GeminiAIQuizPage() {
               )}
 
               {quiz && !showResults && currentQuestion && (
-                <div className="mt-6">
-                  <p className="text-right mb-2 text-sm md:text-base">
-                    {quizLanguage === "中文" ? "问题" : "Question"}{" "}
-                    {currentQuestionIndex + 1}{" "}
-                    {quizLanguage === "中文" ? "共" : "of"} {quiz.length}
-                  </p>
-                  <p className="font-semibold text-lg md:text-xl mb-4">
-                    {currentQuestion.question}
-                  </p>
-                  <div className="flex flex-col gap-3">
-                    {currentQuestion.options.map((option, idx) => {
-                      const selected = selectedAnswer === option;
-                      const correctOption =
-                        option === currentQuestion.correctAnswer;
-                      const wrongSelected = selected && isCorrect === false;
-                      const revealState = selectedAnswer !== null;
-                      const baseClass =
-                        "w-full text-left rounded-md py-3 px-4 transition-all transform focus:outline-none disabled:opacity-90";
-                      const hoverClass =
-                        "hover:shadow-lg hover:scale-[1.01] cursor-pointer";
-                      let stateClass = "bg-gray-50 border border-gray-200";
-                      if (revealState) {
-                        if (correctOption)
-                          stateClass =
-                            "bg-green-300 border-2 border-green-600 text-green-900";
-                        else if (wrongSelected)
-                          stateClass =
-                            "bg-red-300 border-2 border-red-600 text-red-900";
-                        else
-                          stateClass =
-                            "bg-gray-50 border border-gray-200 opacity-80";
-                      } else {
-                        stateClass = "bg-gray-50 border border-gray-200";
-                      }
-                      return (
-                        <button
-                          key={idx}
-                          onClick={() => handleOptionClick(option)}
-                          className={`${baseClass} ${stateClass} ${
-                            !revealState ? hoverClass : ""
-                          }`}
-                          disabled={selectedAnswer !== null}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span>{option}</span>
-                            <span className="ml-4">
-                              {selected && (isCorrect ? "✅" : "❌")}{" "}
-                              {!selected &&
-                                revealState &&
-                                correctOption &&
-                                "✅"}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="mt-4 flex gap-3">
-                    <button
-                      onClick={handleShowHint}
-                      className="flex-1 py-3 rounded-md text-white font-medium shadow-sm focus:outline-none transition-all bg-yellow-500 hover:bg-yellow-600"
-                    >
-                      {quizLanguage === "中文" ? "提示" : "Hint"}
-                    </button>
-                    <button
-                      onClick={handleAskAI}
-                      className="flex-1 py-3 rounded-md text-white font-medium shadow-sm focus:outline-none transition-all bg-violet-600 hover:bg-violet-700"
-                    >
-                      {quizLanguage === "中文" ? "Ask AI" : "Ask AI"}
-                    </button>
-                  </div>
-
-                  {showHint && currentQuestion.hint && (
-                    <div className="mt-3 p-3 bg-gray-50 rounded-md">
-                      {currentQuestion.hint}
-                    </div>
-                  )}
-
-                  {selectedAnswer && isCorrect === false && (
-                    <p className="mt-3 text-red-600 font-medium">
-                      {quizLanguage === "中文"
-                        ? "正确答案："
-                        : "Correct Answer: "}{" "}
-                      {currentQuestion.correctAnswer}
-                    </p>
-                  )}
-
-                  {selectedAnswer && (
-                    <div className="mt-4 flex gap-3">
-                      <button
-                        onClick={handleNextQuestion}
-                        className="flex-1 py-3 rounded-md text-white font-medium shadow-sm focus:outline-none transition-all bg-blue-600 hover:bg-blue-700"
-                      >
-                        {isLastQuestion
-                          ? quizLanguage === "中文"
-                            ? "查看分数"
-                            : "View Score"
-                          : quizLanguage === "中文"
-                          ? "下一题"
-                          : "Next Question"}
-                      </button>
-                      <button
-                        onClick={handleReset}
-                        className="flex-1 py-3 rounded-md text-gray-800 font-medium shadow-sm focus:outline-none transition-all bg-gray-200 hover:bg-gray-300"
-                      >
-                        {quizLanguage === "中文" ? "重置" : "Reset"}
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <QuizQuestionDisplay
+                  question={currentQuestion.question}
+                  options={currentQuestion.options}
+                  correctAnswer={currentQuestion.correctAnswer}
+                  currentIndex={currentQuestionIndex}
+                  totalQuestions={quiz.length}
+                  selectedAnswer={selectedAnswer}
+                  isCorrect={isCorrect}
+                  score={score}
+                  onAnswer={handleOptionClick}
+                  onAskAI={handleAskAI}
+                  onNext={handleNextQuestion}
+                  onReset={handleReset}
+                  quizLanguage={quizLanguage}
+                  onShowHint={handleShowHint}
+                  hint={currentQuestion.hint}
+                  showHint={showHint}
+                />
               )}
 
               {showResults && (

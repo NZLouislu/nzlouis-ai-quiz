@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import AIAssistant from "../../components/AIAssistant";
+import QuizQuestionDisplay from "../../components/QuizQuestionDisplay";
 
 type QuizItem = {
   question: string;
@@ -147,6 +148,17 @@ export default function TriviaQuizPage() {
     handleAIMessage("", "initial");
   };
 
+  const handleResetQuiz = () => {
+    setQuiz(null);
+    setShowResults(false);
+    setScore(0);
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setIsCorrect(null);
+    setAiOpen(false);
+    setAiMessages([]);
+  };
+
   return (
     <main className="min-h-screen pt-16 pb-8 px-4 bg-gray-50">
       <div className="max-w-5xl mx-auto mt-8 flex flex-col lg:flex-row gap-6">
@@ -226,92 +238,21 @@ export default function TriviaQuizPage() {
           )}
 
           {quiz && !showResults && (
-            <>
-              <div className="flex justify-between text-sm text-gray-600 mb-4">
-                <span>
-                  Question {currentIndex + 1} / {quiz.length}
-                </span>
-                <span>Score: {score}</span>
-              </div>
-
-              <h2
-                className="text-lg font-semibold mb-6"
-                dangerouslySetInnerHTML={{
-                  __html: quiz[currentIndex].question,
-                }}
-              />
-
-              <ul className="space-y-3">
-                {quiz[currentIndex].options.map((opt, i) => {
-                  const isOptionCorrect =
-                    opt === quiz[currentIndex].correctAnswer;
-                  const isSelected = selectedAnswer === opt;
-                  return (
-                    <li
-                      key={i}
-                      onClick={() => handleAnswer(opt)}
-                      className={`p-4 rounded-lg cursor-pointer transition flex justify-between items-center
-                        ${
-                          isSelected
-                            ? isCorrect
-                              ? "bg-green-200"
-                              : "bg-red-200"
-                            : "bg-gray-100 hover:bg-gray-200"
-                        }
-                        ${
-                          selectedAnswer && isOptionCorrect
-                            ? "bg-green-200"
-                            : ""
-                        }
-                      `}
-                      dangerouslySetInnerHTML={{ __html: opt }}
-                    />
-                  );
-                })}
-              </ul>
-
-              <div className="mt-4 flex gap-3">
-                <button
-                  onClick={() => {
-                    setQuiz(null);
-                    setShowResults(false);
-                    setScore(0);
-                    setCurrentIndex(0);
-                    setSelectedAnswer(null);
-                    setIsCorrect(null);
-                    setAiOpen(false);
-                    setAiMessages([]);
-                  }}
-                  className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                >
-                  Reset
-                </button>
-                <button
-                  onClick={handleAskAI}
-                  className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700"
-                >
-                  Ask AI
-                </button>
-              </div>
-
-              {selectedAnswer && (
-                <div className="mt-4">
-                  {!isCorrect && (
-                    <p className="text-red-600">
-                      Correct Answer: {quiz[currentIndex].correctAnswer}
-                    </p>
-                  )}
-                  <button
-                    onClick={handleNext}
-                    className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-                  >
-                    {currentIndex + 1 === quiz.length
-                      ? "View Results"
-                      : "Next Question"}
-                  </button>
-                </div>
-              )}
-            </>
+            <QuizQuestionDisplay
+              question={quiz[currentIndex].question}
+              options={quiz[currentIndex].options}
+              correctAnswer={quiz[currentIndex].correctAnswer}
+              currentIndex={currentIndex}
+              totalQuestions={quiz.length}
+              selectedAnswer={selectedAnswer}
+              isCorrect={isCorrect}
+              score={score}
+              onAnswer={handleAnswer}
+              onAskAI={handleAskAI}
+              onNext={handleNext}
+              onReset={handleResetQuiz}
+              quizLanguage={"English"}
+            />
           )}
 
           {showResults && (
@@ -321,16 +262,7 @@ export default function TriviaQuizPage() {
                 Your Score: {score} / {quiz?.length}
               </p>
               <button
-                onClick={() => {
-                  setQuiz(null);
-                  setShowResults(false);
-                  setScore(0);
-                  setCurrentIndex(0);
-                  setSelectedAnswer(null);
-                  setIsCorrect(null);
-                  setAiOpen(false);
-                  setAiMessages([]);
-                }}
+                onClick={handleResetQuiz}
                 className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
               >
                 New Quiz

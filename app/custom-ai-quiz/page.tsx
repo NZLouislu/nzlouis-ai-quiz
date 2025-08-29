@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import QuizForm from "../../components/QuizForm";
 import AIAssistant from "../../components/AIAssistant";
 import RecommendTopicsPanel from "../../components/RecommendTopicsPanel";
+import QuizQuestionDisplay from "../../components/QuizQuestionDisplay";
 
 type QuizItem = {
   question: string;
@@ -208,9 +209,6 @@ export default function CustomAIQuizPage() {
   if (!isMounted) return null;
 
   const currentQuestion = quiz ? quiz[currentQuestionIndex] : null;
-  const isLastQuestion = quiz
-    ? currentQuestionIndex === quiz.length - 1
-    : false;
 
   return (
     <main className="min-h-screen pt-16 pb-8 px-4 bg-gray-50">
@@ -247,97 +245,24 @@ export default function CustomAIQuizPage() {
           )}
 
           {quiz && !showResults && currentQuestion && (
-            <div className="mt-8 space-y-6">
-              <p className="text-gray-600 text-right">
-                {quizLanguage === "中文" ? "问题" : "Question"}{" "}
-                {currentQuestionIndex + 1}{" "}
-                {quizLanguage === "中文" ? "共" : "of"} {quiz.length}
-              </p>
-              <div className="bg-gray-100 p-6 rounded-lg">
-                <p className="font-semibold text-xl text-gray-900 mb-4">
-                  {currentQuestion.question}
-                </p>
-                <ul className="space-y-3">
-                  {currentQuestion.options.map((option, idx) => (
-                    <li
-                      key={idx}
-                      onClick={() => handleOptionClick(option)}
-                      className={`p-4 rounded-md cursor-pointer transition-colors ${
-                        selectedAnswer === option
-                          ? isCorrect
-                            ? "bg-green-200 text-green-800 border-2 border-green-500"
-                            : "bg-red-200 text-red-800 border-2 border-red-500"
-                          : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                      } ${
-                        selectedAnswer !== null &&
-                        option === currentQuestion.correctAnswer
-                          ? "bg-green-200 text-green-800 border-2 border-green-500"
-                          : ""
-                      }`}
-                    >
-                      {option}{" "}
-                      {selectedAnswer === option && (
-                        <span className="ml-2">{isCorrect ? "✅" : "❌"}</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-4 flex gap-3">
-                  <button
-                    onClick={handleShowHint}
-                    className="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600 transition-colors"
-                  >
-                    {quizLanguage === "中文" ? "提示" : "Hint"}
-                  </button>
-                  <button
-                    onClick={handleAskAI}
-                    className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors"
-                  >
-                    {quizLanguage === "中文" ? "Ask AI" : "Ask AI"}
-                  </button>
-                </div>
-
-                {showHint && currentQuestion.hint && (
-                  <p className="mt-2 p-2 bg-gray-200 rounded-md text-gray-800">
-                    {currentQuestion.hint}
-                  </p>
-                )}
-
-                {selectedAnswer && (
-                  <div className="mt-6">
-                    {!isCorrect && (
-                      <p className="text-red-700">
-                        {quizLanguage === "中文"
-                          ? "正确答案"
-                          : "Correct Answer"}
-                        : {currentQuestion.correctAnswer}
-                      </p>
-                    )}
-                    <div className="mt-4 flex gap-3">
-                      <button
-                        onClick={handleNextQuestion}
-                        className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-                      >
-                        {isLastQuestion
-                          ? quizLanguage === "中文"
-                            ? "查看分数"
-                            : "View Score"
-                          : quizLanguage === "中文"
-                          ? "下一题"
-                          : "Next Question"}
-                      </button>
-                      <button
-                        onClick={handleReset}
-                        className="flex-1 bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
-                      >
-                        {quizLanguage === "中文" ? "重置" : "Reset"}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            <QuizQuestionDisplay
+              question={currentQuestion.question}
+              options={currentQuestion.options}
+              correctAnswer={currentQuestion.correctAnswer}
+              currentIndex={currentQuestionIndex}
+              totalQuestions={quiz.length}
+              selectedAnswer={selectedAnswer}
+              isCorrect={isCorrect}
+              score={score}
+              onAnswer={handleOptionClick}
+              onAskAI={handleAskAI}
+              onNext={handleNextQuestion}
+              onReset={handleReset}
+              quizLanguage={quizLanguage}
+              onShowHint={handleShowHint}
+              hint={currentQuestion.hint}
+              showHint={showHint}
+            />
           )}
 
           {showResults && (
