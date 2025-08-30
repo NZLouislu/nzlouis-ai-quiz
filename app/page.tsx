@@ -1,11 +1,11 @@
 import Navbar from "@/components/Navbar";
-import GeminiAIQuizPage from "@/app/gemini-ai-quiz/page";
+import CustomAIQuizPage from "./custom-ai-quiz/page";
 
 export default function Page() {
   return (
     <>
       <Navbar />
-      <GeminiAIQuizPage />
+      <CustomAIQuizPage />
     </>
   );
 }
