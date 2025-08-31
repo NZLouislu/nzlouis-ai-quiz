@@ -185,7 +185,7 @@ const BackgroundScene = () => {
         .sun-container {
           position: absolute;
           top: 8%;
-          right: 8%;
+          right: 38%;
           width: 96px;
           height: 96px;
           animation: sun-pulse 8s ease-in-out infinite alternate;
