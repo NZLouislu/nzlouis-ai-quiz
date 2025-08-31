@@ -6,9 +6,12 @@ export default function HFQuizPage() {
   return (
     <div className="min-h-screen flex items-start justify-center p-4">
       <div className="w-full max-w-[900px] bg-white/30 backdrop-blur-md rounded-lg shadow-xl p-6 flex flex-col items-center">
-        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 dark:text-gray-900">
-          Gradio Quiz UI
+        <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
+          🔗 Gradio Quiz UI
         </h1>
+        <p className="text-center text-gray-600 dark:text-gray-700 mb-8">
+          Interactive prototype on Hugging Face Space
+        </p>
 
         <div className="mb-4">
           <Image

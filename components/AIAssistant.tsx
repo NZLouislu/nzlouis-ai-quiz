@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 type AIMessage = {
   role: "user" | "assistant";
@@ -33,11 +33,21 @@ export default function AIAssistant({
   questionContainerRef,
   onClose,
 }: Props) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const maxHeight = isClient && questionContainerRef.current
+    ? questionContainerRef.current.offsetHeight
+    : "80vh";
+
   return (
     <div
       className="relative bg-white/30 backdrop-blur-md rounded-lg shadow-xl p-6 flex flex-col text-gray-800 dark:text-gray-100"
       style={{
-        maxHeight: questionContainerRef.current?.offsetHeight || "80vh",
+        maxHeight: maxHeight,
       }}
     >
       <button

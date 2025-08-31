@@ -18,9 +18,16 @@ type AIMessage = {
   content: string;
 };
 
+const models = [
+  { id: "openai/gpt-oss-120b:free", name: "GPT-OSS 120B", desc: "OpenAI's open-source 120B model", latency: "150ms", free: true },
+  { id: "deepseek/deepseek-chat-v3-0324:free", name: "DeepSeek Chat V3", desc: "Strong reasoning, complex quiz generation", latency: "120ms", free: true },
+  { id: "meta-llama/llama-3.3-70b-instruct:free", name: "LLaMA 3.3 70B Instruct", desc: "Versatile, general-purpose, powerful instruction following", latency: "140ms", free: true },
+  { id: "nousresearch/deephermes-3-llama-3-8b-preview:free", name: "Nous DeepHermes 3 Llama 3 8B Preview", desc: "Structured output, fine-tuned Llama 3 variant", latency: "130ms", free: true }
+];
+
 export default function CustomAIQuizPage() {
   const [quizTopic, setQuizTopic] = useState("");
-  const [numberOfQuestions, setNumberOfQuestions] = useState("3");
+  const [numberOfQuestions, setNumberOfQuestions] = useState("5");
   const [difficulty, setDifficulty] = useState("easy");
   const [quiz, setQuiz] = useState<QuizItem[] | null>(null);
   const [quizLanguage, setQuizLanguage] = useState<"中文" | "English">(
@@ -42,6 +49,7 @@ export default function CustomAIQuizPage() {
   const [aiRecommendOpen, setAiRecommendOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const [aiLoadingRecommend, setAiLoadingRecommend] = useState(false);
+  const [selectedModel, setSelectedModel] = useState(models[0].id);
 
   const aiScrollRef = useRef<HTMLDivElement>(null);
   const questionContainerRef = useRef<HTMLDivElement>(null);
@@ -74,9 +82,6 @@ export default function CustomAIQuizPage() {
 
   const handleReset = () => {
     resetQuizState();
-    setQuizTopic("");
-    setNumberOfQuestions("3");
-    setDifficulty("easy");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -94,6 +99,7 @@ export default function CustomAIQuizPage() {
           numberOfQuestions,
           difficulty,
           language,
+          model: selectedModel,
         }),
       });
       if (!response.ok) throw new Error(`API error: ${response.status}`);
@@ -155,6 +161,7 @@ export default function CustomAIQuizPage() {
           selectedAnswer,
           messages: aiMessages,
           language: quizLanguage,
+          model: selectedModel,
         }),
       });
       const data = await response.json();
@@ -169,7 +176,7 @@ export default function CustomAIQuizPage() {
           role: "assistant",
           content:
             quizLanguage === "中文"
-              ? "AI获取失败"
+              ? "AI获取失败"  
               : "AI failed to get response",
         },
       ]);
@@ -217,25 +224,29 @@ export default function CustomAIQuizPage() {
           className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl"
           ref={questionContainerRef}
         >
-          <h1 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-gray-900">
-            Custom AI Quiz
+          <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
+            🛠 Custom AI Quiz
           </h1>
+          <p className="text-center text-gray-600 dark:text-gray-700 mb-8">
+            Multi-model quiz engine leveraging diverse open-source AI models
+          </p>
 
           {!quiz && !showResults && (
-            <div>
-              <QuizForm
-                quizTopic={quizTopic}
-                setQuizTopic={setQuizTopic}
-                numberOfQuestions={numberOfQuestions}
-                setNumberOfQuestions={setNumberOfQuestions}
-                difficulty={difficulty}
-                setDifficulty={setDifficulty}
-                loading={loading}
-                quizLanguage={quizLanguage}
-                onSubmit={handleSubmit}
-                onRecommend={handleRecommendTopic}
-              />
-            </div>
+            <QuizForm
+              quizTopic={quizTopic}
+              setQuizTopic={setQuizTopic}
+              numberOfQuestions={numberOfQuestions}
+              setNumberOfQuestions={setNumberOfQuestions}
+              difficulty={difficulty}
+              setDifficulty={setDifficulty}
+              loading={loading}
+              quizLanguage={quizLanguage}
+              onSubmit={handleSubmit}
+              onRecommend={handleRecommendTopic}
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              models={models}
+            />
           )}
 
           {error && (
@@ -312,7 +323,6 @@ export default function CustomAIQuizPage() {
                 setAiRecommendOpen(false);
               }}
               onClose={() => setAiRecommendOpen(false)}
-              questionContainerRef={questionContainerRef}
               quizLanguage={quizLanguage}
             />
           )}

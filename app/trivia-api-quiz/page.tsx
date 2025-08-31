@@ -39,7 +39,7 @@ const categories = [
 
 export default function TriviaQuizPage() {
   const [category, setCategory] = useState("9");
-  const [numQuestions, setNumQuestions] = useState("3");
+  const [numQuestions, setNumQuestions] = useState("5");
   const [difficulty, setDifficulty] = useState("easy");
   const [quiz, setQuiz] = useState<QuizItem[] | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -166,9 +166,12 @@ export default function TriviaQuizPage() {
           className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl"
           ref={questionContainerRef}
         >
-          <h1 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-gray-900">
+          <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
             🎯 Trivia Quiz
           </h1>
+          <p className="text-center text-gray-600 dark:text-gray-700 mb-8">
+            Rapid prototype using fixed trivia database
+          </p>
 
           {!quiz && !showResults && (
             <div className="space-y-4">
@@ -191,10 +194,10 @@ export default function TriviaQuizPage() {
 
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-800 dark:text-gray-900">
-                  Questions
+                Number of Questions
                 </label>
                 <div className="flex gap-4 text-gray-800 dark:text-gray-900">
-                  {[ "3", "5", "10" ].map((num) => (
+                  {[ "5", "10", "15", "20" ].map((num) => (
                     <label key={num} className="flex items-center gap-1">
                       <input
                         type="radio"

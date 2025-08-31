@@ -1,6 +1,21 @@
 "use client";
 
 import React from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+
+type Model = {
+  id: string;
+  name: string;
+  desc: string;
+  latency: string;
+  free: boolean;
+};
 
 type Props = {
   quizTopic: string;
@@ -13,7 +28,13 @@ type Props = {
   quizLanguage: "中文" | "English";
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
   onRecommend: () => Promise<void>;
+  selectedModel?: string;
+  setSelectedModel?: (v: string) => void;
+  models?: Model[];
+  showModelSelect?: boolean;
 };
+
+const defaultModels: Model[] = [];
 
 export default function QuizForm({
   quizTopic,
@@ -26,7 +47,14 @@ export default function QuizForm({
   quizLanguage,
   onSubmit,
   onRecommend,
+  selectedModel,
+  setSelectedModel,
+  models = defaultModels,
+  showModelSelect = true,
 }: Props) {
+  React.useEffect(() => {
+    console.log("QuizForm models prop:", models);
+  }, [models]);
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
@@ -43,12 +71,44 @@ export default function QuizForm({
         />
       </div>
 
+      {showModelSelect && (
+        <div className="mb-4 mt-6">
+          <label
+            htmlFor="model-select"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-900 mb-2"
+          >
+            Select AI Open‑Source Model
+          </label>
+          {/* Ensure selectedModel and setSelectedModel are defined before using */}
+          {selectedModel !== undefined && setSelectedModel !== undefined && (
+            <Select
+              onValueChange={setSelectedModel}
+              defaultValue={selectedModel}
+            >
+              <SelectTrigger id="model-select" className="w-full">
+                <SelectValue placeholder="Select a model" />
+              </SelectTrigger>
+              <SelectContent>
+                {models?.map((model) => (
+                  <SelectItem key={model.id} value={model.id}>
+                    <div className="flex items-center justify-between">
+                      <span>{model.name}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">{model.desc}</p>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+      )}
+
       <div>
-        <label className="block text-sm font-medium mb-2 text-gray-700">
+        <label className="block text-sm font-medium mb-2 ">
           Number of Questions
         </label>
         <div className="flex gap-4">
-          {["3", "5", "10"].map((num) => (
+          {["5", "10", "15", "20"].map((num) => (
             <label key={num} className="flex items-center">
               <input
                 type="radio"
@@ -65,9 +125,7 @@ export default function QuizForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2 text-gray-700">
-          Difficulty
-        </label>
+        <label className="block text-sm font-medium mb-2 ">Difficulty</label>
         <div className="flex gap-4">
           {["easy", "medium", "hard"].map((level) => (
             <label key={level} className="flex items-center">

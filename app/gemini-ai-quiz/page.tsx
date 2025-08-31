@@ -21,7 +21,7 @@ type AIMessage = {
 
 export default function GeminiAIQuizPage() {
   const [quizTopic, setQuizTopic] = useState("");
-  const [numberOfQuestions, setNumberOfQuestions] = useState("3");
+  const [numberOfQuestions, setNumberOfQuestions] = useState("5");
   const [difficulty, setDifficulty] = useState("easy");
   const [quiz, setQuiz] = useState<QuizItem[] | null>(null);
   const [quizLanguage, setQuizLanguage] = useState<"中文" | "English">(
@@ -53,7 +53,7 @@ export default function GeminiAIQuizPage() {
       aiScrollRef.current.scrollTop = aiScrollRef.current.scrollHeight;
   }, [aiMessages]);
 
-  const isChinese = (text: string) => /[\u4e00-\u9fa5]/.test(text);
+  const isChinese = (text: string) => /[一-龥]/.test(text);
 
   const resetQuizState = () => {
     setQuiz(null);
@@ -75,7 +75,7 @@ export default function GeminiAIQuizPage() {
   const handleReset = () => {
     resetQuizState();
     setQuizTopic("");
-    setNumberOfQuestions("3");
+    setNumberOfQuestions("5");
     setDifficulty("easy");
   };
 
@@ -213,9 +213,12 @@ export default function GeminiAIQuizPage() {
     <div className="min-h-screen flex items-start justify-center p-4">
       <div className="w-full max-w-[900px] grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6 items-start">
         <div className="bg-white/30 backdrop-blur-md rounded-lg shadow-xl p-6">
-          <h1 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-gray-900">
-              Gemini AI Quiz
-            </h1>
+          <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
+            ✨ Gemini AI Quiz
+          </h1>
+          <p className="text-center text-gray-600 dark:text-gray-700 mb-8">
+            High-quality quiz generation via Google Gemini API
+          </p>
             <div ref={questionContainerRef}>
               {!quiz && !showResults && (
                 <div className="w-full">
@@ -230,6 +233,7 @@ export default function GeminiAIQuizPage() {
                     quizLanguage={quizLanguage}
                     onSubmit={handleSubmit}
                     onRecommend={handleRecommendTopic}
+                    showModelSelect={false}
                   />
                 </div>
               )}
@@ -315,7 +319,6 @@ export default function GeminiAIQuizPage() {
                               setAiRecommendOpen(false);
                             }}
               onClose={() => setAiRecommendOpen(false)}
-              questionContainerRef={questionContainerRef}
               quizLanguage={quizLanguage}
             />
           )}

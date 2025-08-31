@@ -7,7 +7,6 @@ type Props = {
   recommendations: string[];
   onSelectTopic: (topic: string) => void;
   onClose: () => void;
-  questionContainerRef: React.RefObject<HTMLDivElement | null>;
   quizLanguage: "中文" | "English";
 };
 
@@ -16,7 +15,6 @@ export default function RecommendTopicsPanel({
   recommendations,
   onSelectTopic,
   onClose,
-  questionContainerRef,
   quizLanguage,
 }: Props) {
   return (
