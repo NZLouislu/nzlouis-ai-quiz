@@ -210,8 +210,8 @@ export default function GeminiAIQuizPage() {
   const currentQuestion = quiz ? quiz[currentQuestionIndex] : null;
 
   return (
-    <div className="min-h-screen flex items-start justify-center p-4">
-      <div className="w-full max-w-[900px] grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6 items-start">
+    <div className="flex-1 flex flex-col p-4">
+      <div className="w-full max-w-[900px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6">
         <div className="bg-white/30 backdrop-blur-md rounded-lg shadow-xl p-6">
           <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
             ✨ Gemini AI Quiz

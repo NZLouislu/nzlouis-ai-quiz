@@ -218,8 +218,8 @@ export default function CustomAIQuizPage() {
   const currentQuestion = quiz ? quiz[currentQuestionIndex] : null;
 
   return (
-    <div className="min-h-screen flex items-start p-4">
-      <div className="w-full max-w-[900px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6 items-start md:-translate-x-[8%] lg:-translate-x-[6%]">
+    <div className="flex-1 flex flex-col p-4">
+      <div className="w-full max-w-[900px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6">
         <div
           className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl"
           ref={questionContainerRef}

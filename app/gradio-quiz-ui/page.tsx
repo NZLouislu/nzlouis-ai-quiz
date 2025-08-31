@@ -4,8 +4,8 @@ import Image from "next/image";
 
 export default function HFQuizPage() {
   return (
-    <div className="min-h-screen flex items-start justify-center p-4">
-      <div className="w-full max-w-[900px] bg-white/30 backdrop-blur-md rounded-lg shadow-xl p-6 flex flex-col items-center">
+    <div className="flex-1 flex flex-col p-4">
+      <div className="w-full max-w-[900px] mx-auto bg-white/30 backdrop-blur-md rounded-lg shadow-xl p-6 flex flex-col items-center">
         <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
           🔗 Gradio Quiz UI
         </h1>
