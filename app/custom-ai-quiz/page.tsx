@@ -19,10 +19,34 @@ type AIMessage = {
 };
 
 const models = [
-  { id: "openai/gpt-oss-120b:free", name: "GPT-OSS 120B", desc: "OpenAI's open-source 120B model", latency: "150ms", free: true },
-  { id: "deepseek/deepseek-chat-v3-0324:free", name: "DeepSeek Chat V3", desc: "Strong reasoning, complex quiz generation", latency: "120ms", free: true },
-  { id: "meta-llama/llama-3.3-70b-instruct:free", name: "LLaMA 3.3 70B Instruct", desc: "Versatile, general-purpose, powerful instruction following", latency: "140ms", free: true },
-  { id: "nousresearch/deephermes-3-llama-3-8b-preview:free", name: "Nous DeepHermes 3 Llama 3 8B Preview", desc: "Structured output, fine-tuned Llama 3 variant", latency: "130ms", free: true }
+  {
+    id: "openai/gpt-oss-120b:free",
+    name: "GPT-OSS 120B",
+    desc: "OpenAI's open-source 120B model",
+    latency: "150ms",
+    free: true,
+  },
+  {
+    id: "deepseek/deepseek-chat-v3-0324:free",
+    name: "DeepSeek Chat V3",
+    desc: "Strong reasoning, complex quiz generation",
+    latency: "120ms",
+    free: true,
+  },
+  {
+    id: "meta-llama/llama-3.3-70b-instruct:free",
+    name: "LLaMA 3.3 70B Instruct",
+    desc: "Versatile, general-purpose, powerful instruction following",
+    latency: "140ms",
+    free: true,
+  },
+  {
+    id: "nousresearch/deephermes-3-llama-3-8b-preview:free",
+    name: "Nous DeepHermes 3 Llama 3 8B Preview",
+    desc: "Structured output, fine-tuned Llama 3 variant",
+    latency: "130ms",
+    free: true,
+  },
 ];
 
 export default function CustomAIQuizPage() {
@@ -176,7 +200,7 @@ export default function CustomAIQuizPage() {
           role: "assistant",
           content:
             quizLanguage === "中文"
-              ? "AI获取失败"  
+              ? "AI获取失败"
               : "AI failed to get response",
         },
       ]);
@@ -219,87 +243,93 @@ export default function CustomAIQuizPage() {
 
   return (
     <div className="flex-1 flex flex-col p-4">
-      <div className="w-full max-w-[900px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6">
-        <div
-          className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl"
-          ref={questionContainerRef}
-        >
-          <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
-            🛠 Custom AI Quiz
-          </h1>
-          <p className="text-center text-gray-600 dark:text-gray-700 mb-8">
-            Multi-model quiz engine leveraging diverse open-source AI models
-          </p>
+      <div className={`w-full max-w-[900px] mx-auto ${aiOpen || aiRecommendOpen ? 'grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4' : 'block'}`}>
+        <div className="relative">
+          <div
+            className={`bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl ${
+              !aiOpen && !aiRecommendOpen
+                ? 'md:absolute md:left-[38%] md:transform md:-translate-x-1/2 md:w-full md:max-w-[600px]'
+                : ''
+            }`}
+            ref={questionContainerRef}
+          >
+            <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
+              🛠 Custom AI Quiz
+            </h1>
+            <p className="text-center text-gray-600 dark:text-gray-700 mb-8">
+              Multi-model quiz engine leveraging diverse open-source AI models
+            </p>
 
-          {!quiz && !showResults && (
-            <QuizForm
-              quizTopic={quizTopic}
-              setQuizTopic={setQuizTopic}
-              numberOfQuestions={numberOfQuestions}
-              setNumberOfQuestions={setNumberOfQuestions}
-              difficulty={difficulty}
-              setDifficulty={setDifficulty}
-              loading={loading}
-              quizLanguage={quizLanguage}
-              onSubmit={handleSubmit}
-              onRecommend={handleRecommendTopic}
-              selectedModel={selectedModel}
-              setSelectedModel={setSelectedModel}
-              models={models}
-            />
-          )}
+            {!quiz && !showResults && (
+              <QuizForm
+                quizTopic={quizTopic}
+                setQuizTopic={setQuizTopic}
+                numberOfQuestions={numberOfQuestions}
+                setNumberOfQuestions={setNumberOfQuestions}
+                difficulty={difficulty}
+                setDifficulty={setDifficulty}
+                loading={loading}
+                quizLanguage={quizLanguage}
+                onSubmit={handleSubmit}
+                onRecommend={handleRecommendTopic}
+                selectedModel={selectedModel}
+                setSelectedModel={setSelectedModel}
+                models={models}
+              />
+            )}
 
-          {error && (
-            <div className="mt-8 p-4 bg-red-100/50 text-red-700 rounded-md backdrop-blur-sm">
-              <p>{error}</p>
-            </div>
-          )}
+            {error && (
+              <div className="mt-8 p-4 bg-red-100/50 text-red-700 rounded-md backdrop-blur-sm">
+                <p>{error}</p>
+              </div>
+            )}
 
-          {quiz && !showResults && currentQuestion && (
-            <QuizQuestionDisplay
-              question={currentQuestion.question}
-              options={currentQuestion.options}
-              correctAnswer={currentQuestion.correctAnswer}
-              currentIndex={currentQuestionIndex}
-              totalQuestions={quiz.length}
-              selectedAnswer={selectedAnswer}
-              isCorrect={isCorrect}
-              score={score}
-              onAnswer={handleOptionClick}
-              onAskAI={handleAskAI}
-              onNext={handleNextQuestion}
-              onReset={handleReset}
-              quizLanguage={quizLanguage}
-              onShowHint={handleShowHint}
-              hint={currentQuestion.hint}
-              showHint={showHint}
-            />
-          )}
+            {quiz && !showResults && currentQuestion && (
+              <QuizQuestionDisplay
+                question={currentQuestion.question}
+                options={currentQuestion.options}
+                correctAnswer={currentQuestion.correctAnswer}
+                currentIndex={currentQuestionIndex}
+                totalQuestions={quiz.length}
+                selectedAnswer={selectedAnswer}
+                isCorrect={isCorrect}
+                score={score}
+                onAnswer={handleOptionClick}
+                onAskAI={handleAskAI}
+                onNext={handleNextQuestion}
+                onReset={handleReset}
+                quizLanguage={quizLanguage}
+                onShowHint={handleShowHint}
+                hint={currentQuestion.hint}
+                showHint={showHint}
+              />
+            )}
 
-          {showResults && (
-            <div className="mt-8 text-center p-8 bg-white/30 backdrop-blur-md rounded-lg shadow-xl">
-              <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-900 mb-4">
-                {quizLanguage === "中文" ? "测验完成!" : "Quiz Complete!"}
-              </h2>
-              <p className="text-2xl text-gray-700 dark:text-gray-800">
-                {quizLanguage === "中文"
-                  ? "您的最终得分:"
-                  : "Your final score is:"}
-              </p>
-              <p className="text-5xl font-extrabold text-blue-600 mt-2">
-                {score} / {quiz ? quiz.length : 0}
-              </p>
-              <button
-                onClick={handleReset}
-                className="mt-8 bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {quizLanguage === "中文" ? "创建新测验" : "Create New Quiz"}
-              </button>
-            </div>
-          )}
+            {showResults && (
+              <div className="mt-8 text-center p-8 bg-white/30 backdrop-blur-md rounded-lg shadow-xl">
+                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-900 mb-4">
+                  {quizLanguage === "中文" ? "测验完成!" : "Quiz Complete!"}
+                </h2>
+                <p className="text-2xl text-gray-700 dark:text-gray-800">
+                  {quizLanguage === "中文"
+                    ? "您的最终得分:"
+                    : "Your final score is:"}
+                </p>
+                <p className="text-5xl font-extrabold text-blue-600 mt-2">
+                  {score} / {quiz ? quiz.length : 0}
+                </p>
+                <button
+                  onClick={handleReset}
+                  className="mt-8 bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  {quizLanguage === "中文" ? "创建新测验" : "Create New Quiz"}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="space-y-4">
+        <div className={`space-y-4 ${aiOpen || aiRecommendOpen ? 'md:mt-0' : ''}`}>
           {quiz && currentQuestion && aiOpen && (
             <AIAssistant
               aiMessages={aiMessages}
