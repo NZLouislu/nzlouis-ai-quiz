@@ -12,9 +12,9 @@ type GtagConfig = {
 };
 
 type Gtag = {
-  (command: "config", targetId: string, config?: GtagConfig): void;
-  (command: "js", date: Date): void;
-  (command: "event", action: string, params?: GtagConfig): void;
+  (command: 'config', targetId: string, config?: GtagConfig): void;
+  (command: 'js', date: Date): void;
+  (command: 'event', action: string, params?: GtagConfig): void;
 };
 
 declare global {
@@ -24,7 +24,7 @@ declare global {
   }
 }
 
-const GA_TRACKING_ID = process.env.GA_TRACKING_ID;
+const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 export default function GoogleAnalytics() {
   const pathname = usePathname();
