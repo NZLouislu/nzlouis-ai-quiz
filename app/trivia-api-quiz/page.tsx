@@ -136,7 +136,8 @@ export default function TriviaQuizPage() {
         ...prev,
         { role: "assistant", content: "AI failed to get response" },
       ]);
-    } finally {
+    }
+    finally {
       setAiLoading(false);
       setAiInput("");
     }
@@ -160,12 +161,13 @@ export default function TriviaQuizPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-4">
-      <div className="w-full max-w-[900px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6">
-        <div
-          className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl"
-          ref={questionContainerRef}
-        >
+    <div className="flex-1 flex flex-col p-1 min-h-0">
+      <div className={`w-full max-w-[900px] mx-auto flex-1 min-h-0 ${aiOpen ? 'grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4' : 'flex justify-start'}`}>
+        <div className={aiOpen ? "" : "w-full md:w-[65%] md:max-w-[600px] flex flex-col px-4 md:px-0"}>
+          <div
+            className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl flex-grow-0"
+            ref={questionContainerRef}
+          >
           <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
             🎯 Trivia Quiz
           </h1>
@@ -237,7 +239,7 @@ export default function TriviaQuizPage() {
                 disabled={loading}
                 className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
               >
-                {loading ? "Loading..." : "Start Quiz"}
+                {loading ? "Loading...": "Start Quiz"}
               </button>
             </div>
           )}
@@ -274,6 +276,7 @@ export default function TriviaQuizPage() {
               </button>
             </div>
           )}
+          </div>
         </div>
 
         <div className="space-y-4">

@@ -109,7 +109,8 @@ export default function GeminiAIQuizPage() {
           ? "生成题目失败，请重试。"
           : "Failed to generate quiz. Please try again."
       );
-    } finally {
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -173,7 +174,8 @@ export default function GeminiAIQuizPage() {
               : "AI failed to get response",
         },
       ]);
-    } finally {
+    }
+    finally {
       setAiLoading(false);
       setAiInput("");
     }
@@ -200,7 +202,8 @@ export default function GeminiAIQuizPage() {
       setRecommendations(data.topics || []);
     } catch {
       setRecommendations([]);
-    } finally {
+    }
+    finally {
       setAiLoadingRecommend(false);
     }
   };
@@ -210,10 +213,10 @@ export default function GeminiAIQuizPage() {
   const currentQuestion = quiz ? quiz[currentQuestionIndex] : null;
 
   return (
-    <div className="flex-1 flex flex-col p-4">
-      <div className={`w-full max-w-[900px] mx-auto ${aiOpen || aiRecommendOpen ? 'grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4' : 'block'}`}>
-        <div className="relative">
-          <div className={`bg-white/30 backdrop-blur-md rounded-lg shadow-xl p-6 ${!aiOpen && !aiRecommendOpen ? 'md:absolute md:left-[38%] md:transform md:-translate-x-1/2 md:w-full md:max-w-[600px]' : ''}`}>
+    <div className="flex-1 flex flex-col p-1 min-h-0">
+      <div className={`w-full max-w-[900px] mx-auto flex-1 min-h-0 ${aiOpen || aiRecommendOpen ? 'grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4' : 'flex justify-start'}`}>
+        <div className={`${aiOpen || aiRecommendOpen ? '' : 'w-full md:w-[65%] md:max-w-[600px] flex flex-col px-4 md:px-0'}`}>
+          <div className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl flex-grow-0">
             <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
               ✨ Gemini AI Quiz
             </h1>
@@ -266,8 +269,7 @@ export default function GeminiAIQuizPage() {
                   hint={currentQuestion.hint}
                   showHint={showHint}
                 />
-              )}
-
+              )}\n
               {showResults && (
                 <div className="mt-6">
                   <div className="text-center">
@@ -297,7 +299,7 @@ export default function GeminiAIQuizPage() {
           </div>
         </div>
 
-        <div className={`space-y-4 ${aiOpen || aiRecommendOpen ? 'md:mt-0' : ''}`}>
+        <div className={`space-y-4 min-h-0 ${aiOpen || aiRecommendOpen ? 'md:mt-0 flex flex-col' : ''}`}>
           {quiz && currentQuestion && aiOpen && (
                 <AIAssistant
                   aiMessages={aiMessages}
