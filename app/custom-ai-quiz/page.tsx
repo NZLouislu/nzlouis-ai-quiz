@@ -50,6 +50,8 @@ const models = [
   },
 ];
 
+const MAX_RETRIES = 3;
+
 export default function CustomAIQuizPage() {
   const [quizTopic, setQuizTopic] = useState("");
   const [numberOfQuestions, setNumberOfQuestions] = useState("5");
@@ -115,34 +117,54 @@ export default function CustomAIQuizPage() {
     setLoading(true);
     const language = isChinese(quizTopic) ? "中文" : "English";
     setQuizLanguage(language);
-    try {
-      const response = await fetch("/api/custome-quiz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          quizTopic,
-          numberOfQuestions,
-          difficulty,
-          language,
-          model: selectedModel,
-        }),
-      });
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-      const data = await response.json();
-      if (!data.quiz || !Array.isArray(data.quiz) || data.quiz.length === 0) {
-        setError("No quiz data received from API.");
-        return;
+
+    let attempts = 0;
+    let success = false;
+
+    while (attempts < MAX_RETRIES && !success) {
+      try {
+        const response = await fetch("/api/custome-quiz", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            quizTopic,
+            numberOfQuestions,
+            difficulty,
+            language,
+            model: selectedModel,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (
+          !data.quiz ||
+          !Array.isArray(data.quiz) ||
+          data.quiz.length === 0
+        ) {
+          throw new Error("No quiz data received from API.");
+        }
+
+        setQuiz(data.quiz as QuizItem[]);
+        success = true;
+      } catch (err) {
+        console.error(`Attempt ${attempts + 1} failed:`, err);
+        attempts++;
+        if (attempts === MAX_RETRIES) {
+          setError(
+            quizLanguage === "中文"
+              ? "生成题目失败，请尝试选择其他模型。"
+              : "Failed to generate quiz after multiple attempts. Please try selecting a different model."
+          );
+        }
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
-      setQuiz(data.quiz as QuizItem[]);
-    } catch {
-      setError(
-        quizLanguage === "中文"
-          ? "生成题目失败，请重试。"
-          : "Failed to generate quiz. Please try again."
-      );
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   const handleOptionClick = (option: string) => {
