@@ -1,28 +1,8 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-
-type GtagConfig = {
-  page_path?: string;
-  page_title?: string;
-  send_page_view?: boolean;
-  [key: string]: unknown;
-};
-
-type Gtag = {
-  (command: 'config', targetId: string, config?: GtagConfig): void;
-  (command: 'js', date: Date): void;
-  (command: 'event', action: string, params?: GtagConfig): void;
-};
-
-declare global {
-  interface Window {
-    gtag: Gtag;
-    dataLayer?: GtagConfig[];
-  }
-}
+import { useEffect } from "react";
 
 const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID;
 
@@ -31,15 +11,16 @@ export default function GoogleAnalytics() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!GA_TRACKING_ID || !window.gtag) return;
+    if (!GA_TRACKING_ID) return;
+    if (typeof window.gtag !== "function") return;
 
-    const url = pathname + searchParams.toString();
-    window.gtag("config", GA_TRACKING_ID, {
-      page_path: url,
-    });
+    const url =
+      pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "");
+    window.gtag("config", GA_TRACKING_ID, { page_path: url });
   }, [pathname, searchParams]);
 
   if (!GA_TRACKING_ID) {
+    console.warn("GA_TRACKING_ID is not set");
     return null;
   }
 
@@ -48,6 +29,8 @@ export default function GoogleAnalytics() {
       <Script
         strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
+        onLoad={() => console.log("GA script loaded")}
+        onError={() => console.error("Failed to load GA script")}
       />
       <Script
         id="gtag-init"
@@ -56,10 +39,10 @@ export default function GoogleAnalytics() {
           __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
             gtag('js', new Date());
-            gtag('config', '${GA_TRACKING_ID}', {
-              page_path: window.location.pathname,
-            });
+            gtag('config', '${GA_TRACKING_ID}', { page_path: window.location.pathname });
+            console.log('GA initialized with ID: ${GA_TRACKING_ID}');
           `,
         }}
       />
