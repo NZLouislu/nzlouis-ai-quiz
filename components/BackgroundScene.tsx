@@ -3,34 +3,8 @@
 import React, { useEffect, useState } from "react";
 
 const BackgroundScene = () => {
-  const [showSun, setShowSun] = useState(true);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 640) {
-        setShowSun(false);
-      } else {
-        setShowSun(true);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   return (
     <div className="fixed inset-0 w-full h-full -z-10 overflow-hidden bg-gradient-to-br from-blue-200 to-white">
-      {/* Sun */}
-      {showSun && (
-        <div className="sun-container sm:block hidden">
-          <div className="sun-glow-outer"></div>
-          <div className="sun-glow-inner"></div>
-          <div className="sun-core"></div>
-        </div>
-      )}
-
       {/* Floating clouds */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="cloud cloud-1"></div>
@@ -174,57 +148,6 @@ const BackgroundScene = () => {
           height: 65px;
           top: -32px;
           right: 15px;
-        }
-
-        /* Sun Styles */
-        @keyframes sun-pulse {
-          0%,
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: scale(1.05);
-            opacity: 0.9;
-          }
-        }
-
-        .sun-container {
-          position: absolute;
-          top: 8%;
-          right: 33%;
-          width: 96px;
-          height: 96px;
-          animation: sun-pulse 8s ease-in-out infinite alternate;
-        }
-
-        .sun-glow-outer,
-        .sun-glow-inner,
-        .sun-core {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-        }
-
-        .sun-glow-outer {
-          background-color: #fcd34d;
-          filter: blur(40px);
-          opacity: 0.6;
-        }
-
-        .sun-glow-inner {
-          background-color: #fde047;
-          filter: blur(20px);
-          opacity: 0.8;
-        }
-
-        .sun-core {
-          background-color: #facc15;
-          filter: blur(5px);
-          opacity: 1;
         }
       `}</style>
     </div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import AIAssistant from "../../components/AIAssistant";
 import QuizQuestionDisplay from "../../components/QuizQuestionDisplay";
+import BackgroundSun from "../../components/BackgroundSun";
 
 type QuizItem = {
   question: string;
@@ -136,8 +137,7 @@ export default function TriviaQuizPage() {
         ...prev,
         { role: "assistant", content: "AI failed to get response" },
       ]);
-    }
-    finally {
+    } finally {
       setAiLoading(false);
       setAiInput("");
     }
@@ -161,121 +161,123 @@ export default function TriviaQuizPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-1 min-h-0">
+    <div className="flex-1 flex flex-col p-2 min-h-0 relative">
       <div className={`w-full max-w-[900px] mx-auto flex-1 min-h-0 ${aiOpen ? 'grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4' : 'flex justify-start'}`}>
-        <div className={aiOpen ? "" : "w-full md:w-[65%] md:max-w-[600px] flex flex-col px-4 md:px-0"}>
+        <div className={aiOpen ? "" : "relative w-full md:w-[65%] md:max-w-[600px] flex flex-col px-4 md:px-0"}>
           <div
-            className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl flex-grow-0"
+            className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl flex-grow-0 relative"
             ref={questionContainerRef}
           >
-          <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
-            🎯 Trivia Quiz
-          </h1>
-          <p className="text-center text-gray-600 dark:text-gray-700 mb-8">
-            Rapid prototype using fixed trivia database
-          </p>
+           <BackgroundSun />
+            
+            <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
+              🎯 Trivia Quiz
+            </h1>
+            <p className="text-center text-gray-600 dark:text-gray-700 mb-8">
+              Rapid prototype using fixed trivia database
+            </p>
 
-          {!quiz && !showResults && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2 text-gray-800 dark:text-gray-900">
-                  Category
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full border rounded p-2 bg-white/50 dark:bg-gray-800/50 text-gray-800 dark:text-gray-100"
+            {!quiz && !showResults && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-800 dark:text-gray-900">
+                    Category
+                  </label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full border rounded p-2 bg-white/50 dark:bg-gray-800/50 text-gray-800 dark:text-gray-100"
+                  >
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-800 dark:text-gray-900">
+                  Number of Questions
+                  </label>
+                  <div className="flex gap-4 text-gray-800 dark:text-gray-900">
+                    {[ "5", "10", "15", "20" ].map((num) => (
+                      <label key={num} className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          value={num}
+                          checked={numQuestions === num}
+                          onChange={(e) => setNumQuestions(e.target.value)}
+                          className="form-radio text-blue-600"
+                        />
+                        {num}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-800 dark:text-gray-900">
+                    Difficulty
+                  </label>
+                  <div className="flex gap-4 text-gray-800 dark:text-gray-900">
+                    {[ "easy", "medium", "hard" ].map((level) => (
+                      <label key={level} className="flex items-center gap-1">
+                        <input
+                          type="radio"
+                          value={level}
+                          checked={difficulty === level}
+                          onChange={(e) => setDifficulty(e.target.value)}
+                          className="form-radio text-blue-600"
+                        />
+                        <span className="capitalize">{level}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleStart}
+                  disabled={loading}
+                  className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
                 >
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                  {loading ? "Loading..." : "Start Quiz"}
+                </button>
               </div>
+            )}
 
-              <div>
-                <label className="block text-sm font-medium mb-2 text-gray-800 dark:text-gray-900">
-                Number of Questions
-                </label>
-                <div className="flex gap-4 text-gray-800 dark:text-gray-900">
-                  {[ "5", "10", "15", "20" ].map((num) => (
-                    <label key={num} className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        value={num}
-                        checked={numQuestions === num}
-                        onChange={(e) => setNumQuestions(e.target.value)}
-                        className="form-radio text-blue-600"
-                      />
-                      {num}
-                    </label>
-                  ))}
-                </div>
+            {quiz && !showResults && (
+              <QuizQuestionDisplay
+                question={quiz[currentIndex].question}
+                options={quiz[currentIndex].options}
+                correctAnswer={quiz[currentIndex].correctAnswer}
+                currentIndex={currentIndex}
+                totalQuestions={quiz.length}
+                selectedAnswer={selectedAnswer}
+                isCorrect={isCorrect}
+                score={score}
+                onAnswer={handleAnswer}
+                onAskAI={handleAskAI}
+                onNext={handleNext}
+                onReset={handleResetQuiz}
+                quizLanguage={"English"}
+              />
+            )}
+
+            {showResults && (
+              <div className="text-center p-6">
+                <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-900">Quiz Complete 🎉</h2>
+                <p className="text-xl mb-6 text-gray-700 dark:text-gray-800">
+                  Your Score: {score} / {quiz?.length}
+                </p>
+                <button
+                  onClick={handleResetQuiz}
+                  className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                >
+                  New Quiz
+                </button>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2 text-gray-800 dark:text-gray-900">
-                  Difficulty
-                </label>
-                <div className="flex gap-4 text-gray-800 dark:text-gray-900">
-                  {[ "easy", "medium", "hard" ].map((level) => (
-                    <label key={level} className="flex items-center gap-1">
-                      <input
-                        type="radio"
-                        value={level}
-                        checked={difficulty === level}
-                        onChange={(e) => setDifficulty(e.target.value)}
-                        className="form-radio text-blue-600"
-                      />
-                      <span className="capitalize">{level}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                onClick={handleStart}
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-blue-400"
-              >
-                {loading ? "Loading...": "Start Quiz"}
-              </button>
-            </div>
-          )}
-
-          {quiz && !showResults && (
-            <QuizQuestionDisplay
-              question={quiz[currentIndex].question}
-              options={quiz[currentIndex].options}
-              correctAnswer={quiz[currentIndex].correctAnswer}
-              currentIndex={currentIndex}
-              totalQuestions={quiz.length}
-              selectedAnswer={selectedAnswer}
-              isCorrect={isCorrect}
-              score={score}
-              onAnswer={handleAnswer}
-              onAskAI={handleAskAI}
-              onNext={handleNext}
-              onReset={handleResetQuiz}
-              quizLanguage={"English"}
-            />
-          )}
-
-          {showResults && (
-            <div className="text-center p-6">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-900">Quiz Complete 🎉</h2>
-              <p className="text-xl mb-6 text-gray-700 dark:text-gray-800">
-                Your Score: {score} / {quiz?.length}
-              </p>
-              <button
-                onClick={handleResetQuiz}
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-              >
-                New Quiz
-              </button>
-            </div>
-          )}
+            )}
           </div>
         </div>
 
@@ -295,6 +297,7 @@ export default function TriviaQuizPage() {
           )}
         </div>
       </div>
+      
     </div>
   );
 }

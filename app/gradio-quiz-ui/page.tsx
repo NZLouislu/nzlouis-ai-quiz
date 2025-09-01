@@ -1,13 +1,15 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import BackgroundSun from "../../components/BackgroundSun";
 
 export default function HFQuizPage() {
   return (
-    <div className="flex-1 flex flex-col p-1">
+    <div className="flex-1 flex flex-col p-2">
       <div className="w-full max-w-[900px] mx-auto flex-1 min-h-0 flex justify-start">
         <div className="w-full md:w-[65%] md:max-w-[600px] flex flex-col px-4 md:px-0">
-          <div className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl flex-grow-0">
+          <div className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl flex-grow-0 relative">
+           <BackgroundSun />
             <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-620 dark:text-gray-900 flex items-center justify-center gap-2">
               🔗 Gradio Quiz UI
             </h1>

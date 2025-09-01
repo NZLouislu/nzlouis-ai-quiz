@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import QuizForm from "../../components/QuizForm";
 import AIAssistant from "../../components/AIAssistant";
+import BackgroundSun from "../../components/BackgroundSun";
 import RecommendTopicsPanel from "../../components/RecommendTopicsPanel";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import QuizQuestionDisplay from "../../components/QuizQuestionDisplay";
@@ -213,10 +214,11 @@ export default function GeminiAIQuizPage() {
   const currentQuestion = quiz ? quiz[currentQuestionIndex] : null;
 
   return (
-    <div className="flex-1 flex flex-col p-1 min-h-0">
+    <div className="flex-1 flex flex-col p-2 min-h-0">
       <div className={`w-full max-w-[900px] mx-auto flex-1 min-h-0 ${aiOpen || aiRecommendOpen ? 'grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4' : 'flex justify-start'}`}>
         <div className={`${aiOpen || aiRecommendOpen ? '' : 'w-full md:w-[65%] md:max-w-[600px] flex flex-col px-4 md:px-0'}`}>
-          <div className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl flex-grow-0">
+          <div className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl flex-grow-0 relative">
+           <BackgroundSun />
             <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
               ✨ Gemini AI Quiz
             </h1>
