@@ -271,7 +271,7 @@ export default function GeminiAIQuizPage() {
                   hint={currentQuestion.hint}
                   showHint={showHint}
                 />
-              )}\n
+              )}
               {showResults && (
                 <div className="mt-6">
                   <div className="text-center">
