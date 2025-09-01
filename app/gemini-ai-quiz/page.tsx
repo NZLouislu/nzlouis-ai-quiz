@@ -75,9 +75,6 @@ export default function GeminiAIQuizPage() {
 
   const handleReset = () => {
     resetQuizState();
-    setQuizTopic("");
-    setNumberOfQuestions("5");
-    setDifficulty("easy");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -110,8 +107,7 @@ export default function GeminiAIQuizPage() {
           ? "生成题目失败，请重试。"
           : "Failed to generate quiz. Please try again."
       );
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -175,8 +171,7 @@ export default function GeminiAIQuizPage() {
               : "AI failed to get response",
         },
       ]);
-    }
-    finally {
+    } finally {
       setAiLoading(false);
       setAiInput("");
     }
@@ -203,8 +198,7 @@ export default function GeminiAIQuizPage() {
       setRecommendations(data.topics || []);
     } catch {
       setRecommendations([]);
-    }
-    finally {
+    } finally {
       setAiLoadingRecommend(false);
     }
   };
@@ -215,10 +209,22 @@ export default function GeminiAIQuizPage() {
 
   return (
     <div className="flex-1 flex flex-col p-2 min-h-0">
-      <div className={`w-full max-w-[900px] mx-auto flex-1 min-h-0 ${aiOpen || aiRecommendOpen ? 'grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4' : 'flex justify-start'}`}>
-        <div className={`${aiOpen || aiRecommendOpen ? '' : 'w-full md:w-[65%] md:max-w-[600px] flex flex-col px-4 md:px-0'}`}>
+      <div
+        className={`w-full max-w-[900px] mx-auto flex-1 min-h-0 ${
+          aiOpen || aiRecommendOpen
+            ? "grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4"
+            : "flex justify-start"
+        }`}
+      >
+        <div
+          className={`${
+            aiOpen || aiRecommendOpen
+              ? ""
+              : "w-full md:w-[65%] md:max-w-[600px] flex flex-col px-4 md:px-0"
+          }`}
+        >
           <div className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl flex-grow-0 relative">
-           <BackgroundSun />
+            <BackgroundSun />
             <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
               ✨ Gemini AI Quiz
             </h1>
@@ -301,19 +307,23 @@ export default function GeminiAIQuizPage() {
           </div>
         </div>
 
-        <div className={`space-y-4 min-h-0 ${aiOpen || aiRecommendOpen ? 'md:mt-0 flex flex-col' : ''}`}>
+        <div
+          className={`space-y-4 min-h-0 ${
+            aiOpen || aiRecommendOpen ? "md:mt-0 flex flex-col" : ""
+          }`}
+        >
           {quiz && currentQuestion && aiOpen && (
-                <AIAssistant
-                  aiMessages={aiMessages}
-                  aiInput={aiInput}
-                  setAiInput={setAiInput}
-                  aiLoading={aiLoading}
-                  handleAIMessage={handleAIMessage}
-                  quizLanguage={quizLanguage}
-                  aiScrollRef={aiScrollRef}
-                  questionContainerRef={questionContainerRef}
-                  onClose={() => setAiOpen(false)}
-                />
+            <AIAssistant
+              aiMessages={aiMessages}
+              aiInput={aiInput}
+              setAiInput={setAiInput}
+              aiLoading={aiLoading}
+              handleAIMessage={handleAIMessage}
+              quizLanguage={quizLanguage}
+              aiScrollRef={aiScrollRef}
+              questionContainerRef={questionContainerRef}
+              onClose={() => setAiOpen(false)}
+            />
           )}
 
           {aiRecommendOpen && (
@@ -321,9 +331,9 @@ export default function GeminiAIQuizPage() {
               aiLoadingRecommend={aiLoadingRecommend}
               recommendations={recommendations}
               onSelectTopic={(topic) => {
-                              setQuizTopic(topic);
-                              setAiRecommendOpen(false);
-                            }}
+                setQuizTopic(topic);
+                setAiRecommendOpen(false);
+              }}
               onClose={() => setAiRecommendOpen(false)}
               quizLanguage={quizLanguage}
             />
