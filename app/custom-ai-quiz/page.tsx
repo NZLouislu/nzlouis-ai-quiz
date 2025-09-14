@@ -21,30 +21,58 @@ type AIMessage = {
 
 const models = [
   {
-    id: "openai/gpt-oss-120b:free",
-    name: "GPT-OSS 120B",
-    desc: "OpenAI's open-source 120B model",
+    id: "openai/gpt-oss-20b:free",
+    name: "GPT-OSS 20B",
+    desc: "OpenAI's open-source 20B model",
     latency: "150ms",
     free: true,
   },
   {
-    id: "deepseek/deepseek-chat-v3-0324:free",
-    name: "DeepSeek Chat V3",
+    id: "openrouter/sonoma-sky-alpha",
+    name: "Sonoma Sky Alpha",
+    desc: "Advanced model with strong reasoning and generation capabilities",
+    latency: "160ms",
+    free: true,
+  },
+  {
+    id: "deepseek/deepseek-r1-0528:free",
+    name: "DeepSeek R1",
     desc: "Strong reasoning, complex quiz generation",
     latency: "120ms",
     free: true,
   },
   {
-    id: "meta-llama/llama-3.3-70b-instruct:free",
-    name: "LLaMA 3.3 70B Instruct",
+    id: "meta-llama/llama-3.1-405b-instruct:free",
+    name: "LLaMA 3.1",
     desc: "Versatile, general-purpose, powerful instruction following",
+    latency: "140ms",
+    free: true,
+  },
+  {
+    id: "qwen/qwen3-235b-a22b:free",
+    name: "Qwen3",
+    desc: "Code expert",
+    latency: "135ms",
+    free: true,
+  },
+  {
+    id: "microsoft/mai-ds-r1:free",
+    name: "MAI-DS-R1",
+    desc: "MS AI optimized",
+    latency: "125ms",
+    free: true,
+  },
+  {
+    id: "moonshotai/kimi-k2:free",
+    name: "Kimi K2 Instruct",
+    desc: "MoE expert",
     latency: "140ms",
     free: true,
   },
   {
     id: "nousresearch/deephermes-3-llama-3-8b-preview:free",
     name: "Nous DeepHermes 3 Llama 3 8B Preview",
-    desc: "Structured output, fine-tuned Llama 3 variant",
+    desc: "Structured output",
     latency: "130ms",
     free: true,
   },
@@ -141,11 +169,7 @@ export default function CustomAIQuizPage() {
 
         const data = await response.json();
 
-        if (
-          !data.quiz ||
-          !Array.isArray(data.quiz) ||
-          data.quiz.length === 0
-        ) {
+        if (!data.quiz || !Array.isArray(data.quiz) || data.quiz.length === 0) {
           throw new Error("No quiz data received from API.");
         }
 
@@ -161,7 +185,7 @@ export default function CustomAIQuizPage() {
               : "Failed to generate quiz after multiple attempts. Please try selecting a different model."
           );
         }
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
     setLoading(false);
@@ -227,8 +251,7 @@ export default function CustomAIQuizPage() {
               : "AI failed to get response",
         },
       ]);
-    }
-    finally {
+    } finally {
       setAiLoading(false);
       setAiInput("");
     }
@@ -256,8 +279,7 @@ export default function CustomAIQuizPage() {
       setRecommendations(data.topics || []);
     } catch {
       setRecommendations([]);
-    }
-    finally {
+    } finally {
       setAiLoadingRecommend(false);
     }
   };
@@ -268,10 +290,25 @@ export default function CustomAIQuizPage() {
 
   return (
     <div className="flex-1 flex flex-col p-2 min-h-0">
-      <div className={`w-full max-w-[900px] mx-auto flex-1 min-h-0 ${aiOpen || aiRecommendOpen ? 'grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4' : 'flex justify-start'}`}>
-        <div className={`${aiOpen || aiRecommendOpen ? '' : 'w-full md:w-[65%] md:max-w-[600px] flex flex-col px-4 md:px-0'}`}>
-          <div className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl flex-grow-0 relative" ref={questionContainerRef}>
-           <BackgroundSun />
+      <div
+        className={`w-full max-w-[900px] mx-auto flex-1 min-h-0 ${
+          aiOpen || aiRecommendOpen
+            ? "grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4"
+            : "flex justify-start"
+        }`}
+      >
+        <div
+          className={`${
+            aiOpen || aiRecommendOpen
+              ? ""
+              : "w-full md:w-[65%] md:max-w-[600px] flex flex-col px-4 md:px-0"
+          }`}
+        >
+          <div
+            className="bg-white/30 backdrop-blur-md p-6 rounded-lg shadow-xl flex-grow-0 relative"
+            ref={questionContainerRef}
+          >
+            <BackgroundSun />
             <h1 className="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-gray-900 flex items-center justify-center gap-2">
               🛠 Custom AI Quiz
             </h1>
@@ -348,7 +385,11 @@ export default function CustomAIQuizPage() {
           </div>
         </div>
 
-        <div className={`space-y-4 min-h-0 ${aiOpen || aiRecommendOpen ? 'md:mt-0 flex flex-col' : ''}`}>
+        <div
+          className={`space-y-4 min-h-0 ${
+            aiOpen || aiRecommendOpen ? "md:mt-0 flex flex-col" : ""
+          }`}
+        >
           {quiz && currentQuestion && aiOpen && (
             <AIAssistant
               aiMessages={aiMessages}
