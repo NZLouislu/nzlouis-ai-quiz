@@ -31,7 +31,7 @@ Return only valid JSON. Create a ${language} quiz as a JSON object with this exa
   "quiz": [
     {
       "question": "string",
-      "options": ["A","B","C","D"],
+      "options": ["option text 1","option text 2","option text 3","option text 4"],
       "correctAnswer": "one of options",
       "hint": "concise, non-spoiler nudge that helps reasoning without revealing the answer"
     }
@@ -41,6 +41,8 @@ Topic: ${quizTopic}
 Questions: ${numberOfQuestions}
 Difficulty: ${difficulty}
 Rules:
+- Each "options" array must contain ONLY the option text WITHOUT any letter prefixes (A., B., C., D., etc.).
+- DO NOT include "A.", "B.", "C.", "D." or any numbering in the option text.
 - Each "options" must be plausible and mutually exclusive.
 - "correctAnswer" must exactly match one item in "options".
 - "hint" should guide thinking paths or key concept, avoid giving the exact answer.
@@ -112,10 +114,14 @@ Rules:
       return NextResponse.json({ error: "Malformed quiz JSON from OpenRouter" }, { status: 500 });
     }
 
+    const cleanOptionText = (text: string): string => {
+      return text.replace(/^[A-D][\.\)]\s*/i, '').trim();
+    };
+
     const quizArray = parsed.quiz.map((q: RawQuizItem) => ({
       question: String(q.question || ""),
-      options: Array.isArray(q.options) ? q.options.map(String) : [],
-      correctAnswer: String(q.correctAnswer || ""),
+      options: Array.isArray(q.options) ? q.options.map((opt) => cleanOptionText(String(opt))) : [],
+      correctAnswer: cleanOptionText(String(q.correctAnswer || "")),
       hint: q.hint ? String(q.hint) : "",
     }));
 
