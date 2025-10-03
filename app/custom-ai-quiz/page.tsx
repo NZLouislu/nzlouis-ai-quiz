@@ -28,13 +28,6 @@ const models = [
     free: true,
   },
   {
-    id: "x-ai/grok-4-fast:free",
-    name: "xAI Grok 4 Fast",
-    desc: "Efficient reasoning with fast responses and low overhead.",
-    latency: "160ms",
-    free: true,
-  },
-  {
     id: "deepseek/deepseek-chat-v3.1:free",
     name: "DeepSeek V3.1",
     desc: "Blends structured reasoning with flexible tool use.",
