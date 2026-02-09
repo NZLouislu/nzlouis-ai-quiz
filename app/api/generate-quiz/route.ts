@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { fetchWithFallback } from "../../../lib/gemini";
 
 type RawQuizItem = {
   question?: string;
@@ -33,38 +34,25 @@ Rules:
 - Avoid code fences or explanations; output JSON only.
 `;
 
-    const apiKey = process.env.GOOGLE_API_KEY;
-    const apiUrl = process.env.GEMINI_API_URL;
-
-    if (!apiKey || !apiUrl) {
-      return NextResponse.json({ error: "API key or URL not set" }, { status: 500 });
-    }
-
     const payload = {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: { responseMimeType: "application/json" },
     };
 
-    const url = `${apiUrl}?key=${apiKey}`;
+    const result = await fetchWithFallback(payload);
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
+    if (!result.ok) {
       return NextResponse.json(
-        { error: `API error: ${response.status}`, details: errorText },
+        { error: result.error, details: result.details },
         { status: 500 }
       );
     }
 
-    const data = await response.json();
+    const data = result.data;
 
     if (!data.candidates || data.candidates.length === 0) {
-      return NextResponse.json({ error: "No quiz data received from API" }, { status: 500 });
+      console.error("Gemini Error - No candidates:", data);
+      return NextResponse.json({ error: "No quiz data received from Gemini" }, { status: 500 });
     }
 
     let quizJson = data.candidates[0]?.content?.parts?.[0]?.text || "";

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { fetchWithFallback } from "../../../lib/gemini";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -61,33 +62,20 @@ export async function POST(req: Request) {
     Respond with three concise, non-spoiler hints, each <=12 words, aimed to resolve uncertainty.`;
     }
 
-    const apiKey = process.env.GOOGLE_API_KEY;
-    const apiUrl = process.env.GEMINI_API_URL;
-    if (!apiKey || !apiUrl) {
-      return NextResponse.json(
-        { error: "API key or URL not set" },
-        { status: 500 }
-      );
-    }
-
     const payload = {
       contents: [{ parts: [{ text: base + "\n" + userText }] }],
     };
-    const response = await fetch(`${apiUrl}?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
 
-    if (!response.ok) {
-      const errorText = await response.text();
+    const result = await fetchWithFallback(payload);
+
+    if (!result.ok) {
       return NextResponse.json(
-        { error: `API error: ${response.status}`, details: errorText },
+        { error: result.error, details: result.details },
         { status: 500 }
       );
     }
 
-    const data = await response.json();
+    const data = result.data;
     const text =
       (data.candidates?.[0]?.content?.parts?.[0]?.text || "No response").replace(/^- /gm, '');
     return NextResponse.json({ message: text });
